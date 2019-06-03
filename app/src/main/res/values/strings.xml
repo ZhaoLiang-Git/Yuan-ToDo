@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">ScheduleManagement</string>
+    //登录注册
+    <string name="login">登录</string>
+    <string name="register">注册</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="to_register">没有账号？注册</string>
+    <string name="back_login">已有账号？登录</string>
+    <string name="repeat_password">确认密码</string>
+    <string name="login_success">登录成功</string>
+    <string name="login_fail">密码错误</string>
+    <string name="username_empty">用户名不能为空</string>
+    <string name="psw_empty">密码不能为空</string>
+    <string name="register_psw_repeat_error">两次密码不一致</string>
+
+    <string name="title_activity_bottom">BottomActivity</string>
+    <string name="nav_calendar">日历</string>
+    <string name="nav_today">今天</string>
+    <string name="nav_person">个人</string>
+    <string name="done">已完成</string>
+
+    <string name="add_want">准备做什么？</string>
+    <string name="add_description">描述</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="dialog_ok">确定</string>
+</resources>

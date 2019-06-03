@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/nav_calendar"
+        android:title="@string/nav_calendar" />
+
+    <item
+        android:id="@+id/navigation_today"
+        android:icon="@drawable/nav_today"
+        android:title="@string/nav_today" />
+
+    <item
+        android:id="@+id/navigation_person"
+        android:icon="@drawable/nav_person"
+        android:title="@string/nav_person" />
+
+</menu>
