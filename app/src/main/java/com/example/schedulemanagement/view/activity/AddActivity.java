@@ -1,10 +1,8 @@
 package com.example.schedulemanagement.view.activity;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
@@ -17,10 +15,13 @@ import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Calendar;
 
@@ -29,12 +30,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import butterknife.BindColor;
-import butterknife.BindDrawable;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.Response;
 
 public class AddActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
@@ -85,6 +83,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         initTimeDialog();
         onClick();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -196,11 +195,12 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private void add(){
 
         mTitle =titleTv.getText().toString().trim();
-        mContent = titleTv.getText().toString().trim();
+        mContent = descriptionEdit.getText().toString().trim();
         if(mTitle.equals("")){
             CommonUtils.showToast("事件不能为空");
         }
         OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN+"add")
                 .addParams(Constants.Params_TITLE,mTitle)
                 .addParams(Constants.Params_CONTENT,mContent)
                 .addParams(Constants.Params_STATUS,mStatus)
@@ -222,6 +222,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
 
     private void showAddSuccess(){
         runOnUiThread(() -> {
+            EventBus.getDefault().post(new AddEvent(mDateFormat)); //发送成功添加日程消息，告诉主活动显示改变
             finish();
             CommonUtils.showToast("成功添加日程");
         });

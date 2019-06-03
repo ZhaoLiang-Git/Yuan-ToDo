@@ -55,7 +55,6 @@ public class Event {
         private int id;
         private String priority;
         private String s_date;
-        private String s_deadline;
         private String s_starting;
         private String status;
         private String title;
@@ -93,13 +92,6 @@ public class Event {
             this.s_date = s_date;
         }
 
-        public String getS_deadline() {
-            return s_deadline;
-        }
-
-        public void setS_deadline(String s_deadline) {
-            this.s_deadline = s_deadline;
-        }
 
         public String getS_starting() {
             return s_starting;

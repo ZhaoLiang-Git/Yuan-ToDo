@@ -6,7 +6,11 @@ import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zhy.http.okhttp.callback.Callback;
+
+
+import java.lang.reflect.Type;
 
 import okhttp3.Call;
 import okhttp3.Response;
@@ -23,7 +27,9 @@ public abstract class BaseResponseCallback<T> extends Callback<BaseResponse<T>> 
     private static final String TAG = "BaseResponseCallback";
     @Override
     public BaseResponse<T> parseNetworkResponse(Response response, int id) throws Exception {
-        BaseResponse baseResponse = new Gson().fromJson(response.body().string(), BaseResponse.class);
+        Type type = new TypeToken<BaseResponse<T>>() {}.getType();
+        Gson gson= new Gson() ;
+        BaseResponse<T> baseResponse=gson.fromJson(response.body().string(), type);
         return baseResponse;
     }
 

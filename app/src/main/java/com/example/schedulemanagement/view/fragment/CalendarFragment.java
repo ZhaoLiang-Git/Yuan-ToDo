@@ -15,20 +15,31 @@ import com.example.schedulemanagement.adapter.EventAdapter;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
+import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Article;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.MainActivity;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.haibin.calendarview.Calendar;
 import com.haibin.calendarview.CalendarLayout;
 import com.haibin.calendarview.CalendarView;
 import com.zhy.http.okhttp.OkHttpUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.lang.reflect.Type;
 import java.text.DateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -36,6 +47,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * <pre>
@@ -69,6 +81,8 @@ public class CalendarFragment extends Fragment {
     private EventAdapter mAdapter;
     private Event mEvent = new Event();
     private String mTitle = "今天";
+    private String mDateFormat;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,6 +100,23 @@ public class CalendarFragment extends Fragment {
         initRecyclerView();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    //添加日程成功重新显示日程
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAddEvent(AddEvent event) {
+        showDayEvent();
+    }
 
 
     @SuppressLint("SetTextI18n")
@@ -93,6 +124,8 @@ public class CalendarFragment extends Fragment {
         currentDayTv.setText(String.valueOf(calendarView.getCurDay()));
         monthDayTv.setText(calendarView.getCurMonth() + "月" + calendarView.getCurDay() + "日");
         yearTv.setText(calendarView.getCurYear() + "");
+        mDateFormat = DateUtils.dateFormat(calendarView.getCurYear(), calendarView.getCurMonth(), calendarView.getCurDay());
+        mTitle = "今天";
     }
 
     private void onClick() {
@@ -115,29 +148,32 @@ public class CalendarFragment extends Fragment {
                 } else {
                     lunarTv.setText(calendar.getLunar());
                 }
-                ((MainActivity)getActivity()).setDateText(
+                ((MainActivity) getActivity()).setDateText(
                         monthDay,
-                        DateUtils.dateFormat(calendar.getYear(),calendar.getMonth(),calendar.getDay()));
-                showEvent(monthDay);
+                        DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay()));
+//                showEvent(monthDay);
                 //查询日程
-//                showDayEvent(monthDay,calendar.getYear(),calendar.getMonth(),calendar.getDay());
+                mTitle = monthDay;
+                mDateFormat = DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay());
+                showDayEvent();
             }
         });
         //点击今天
         todayIv.setOnClickListener(view -> {
             calendarView.scrollToCurrent();
-            mTitle = "5月20日";
             mAdapter.notifyDataSetChanged();
-          showDayEvent("今天",calendarView.getCurYear(),calendarView.getCurMonth(),calendarView.getCurDay());
+            mDateFormat = DateUtils.dateFormat(calendarView.getCurYear(), calendarView.getCurMonth(), calendarView.getCurDay());
+            mTitle = "今天";
+            showDayEvent();
         });
     }
 
-    private void initRecyclerView(){
-        mAdapter = new EventAdapter(getActivity(),mTitle);
+    private void initRecyclerView() {
+        mAdapter = new EventAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
-        recyclerView.notifyDataSetChanged();
+        showDayEvent();
     }
 
     @Override
@@ -154,30 +190,27 @@ public class CalendarFragment extends Fragment {
 
     /**
      * 网络获取日程
-     * @param date 5月20日这种格式的日期
-     * @param year 年
-     * @param month 月
-     * @param day 日
      */
-    private void showDayEvent(String date,int year,int month,int day){
+    private void showDayEvent() {
         OkHttpUtils.post()
-                .url(Constants.BASE_URL+"show")
-                .addParams("s_date", DateUtils.dateFormat(year,month,day))
+                .url(Constants.BASE_URL_MAIN + "show")
+                .addParams("s_date", mDateFormat)
 //                .addParams("s_date","2019-05-26")
                 .build()
-                .execute(new BaseResponseCallback<Event>() {
+                .execute(new EventResponseCallback() {
+
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
-                        Log.d(TAG, "onError: "+e.toString());
+                        CommonUtils.showToast(getActivity(), "网络错误：" + e.toString());
+                        Log.d(TAG, "onError: " + e.toString());
                         e.printStackTrace();
                     }
 
                     @Override
                     public void onResponse(BaseResponse<Event> response, int id) {
-                        if(response.getCode() == Constants.CODE_SUCCESS){
-                            showSuccess(date,response.getData());
-                        }else {
+                        if (response.getCode() == Constants.CODE_SUCCESS) {
+                            showSuccess(mTitle, response.getData());
+                        } else {
                             showFail(response.getMsg());
                         }
                     }
@@ -186,33 +219,34 @@ public class CalendarFragment extends Fragment {
 
     /**
      * 查询日程成功
+     *
      * @param title 标题
      * @param event 事件
      */
-    private void showSuccess(String title,Event event){
-        getActivity().runOnUiThread(()->{
-            mTitle = title;
-            mEvent = event;
-            mAdapter.notifyDataSetChanged();
+    private void showSuccess(String title, Event event) {
+        getActivity().runOnUiThread(() -> {
+            mAdapter.notifyChanged(getActivity(), title, event);
+            recyclerView.notifyDataSetChanged();
         });
     }
 
     /**
      * 查询日程失败
      */
-    private void showFail(String msg){
-        CommonUtils.showToast(getActivity(),msg);
+    private void showFail(String msg) {
+        CommonUtils.showToast(getActivity(), msg);
     }
 
     /**
      * 测试
      */
-    private void showEvent(String title){
-        if(title.equals("今天")){
-            mEvent = mAdapter.getEvent("唱跳","rap");
-            Log.d(TAG, "showEvent: "+title);
+    private void showEvent(String title) {
+        if (title.equals("今天")) {
+            mEvent = mAdapter.getEvent("唱跳", "rap");
+            Log.d(TAG, "showEvent: " + title);
+        } else {
+            mEvent = mAdapter.getEvent("打篮球", "吃关东煮");
         }
-        mEvent = mAdapter.getEvent("打篮球","吃关东煮");
-        mAdapter.notifyChanged(getActivity(),title,mEvent);
+        mAdapter.notifyChanged(getActivity(), title, mEvent);
     }
 }

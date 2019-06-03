@@ -119,6 +119,7 @@ public class LoginFragment extends Fragment {
      */
     private void loginSuccess() {
         getActivity().runOnUiThread(() -> {
+            getActivity().finish();
             toMainActivity();
             CommonUtils.showToast(getActivity(),getString(R.string.login_success));
         });

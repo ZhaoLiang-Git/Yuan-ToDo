@@ -13,7 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name=".app.App"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="m">
         <activity android:name=".view.activity.AddActivity"></activity>
         <activity android:name=".view.activity.MainActivity" />
         <activity android:name=".view.activity.LoginActivity">

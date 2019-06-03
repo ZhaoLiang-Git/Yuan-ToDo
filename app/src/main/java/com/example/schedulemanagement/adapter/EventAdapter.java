@@ -34,9 +34,10 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     LinkedHashMap<String, List<Event.EventBean>> map = new LinkedHashMap<>();
     List<String> titles = new ArrayList<>();
 
-    public EventAdapter(Context context, String title) {
+    public EventAdapter(Context context) {
         super(context);
-        notifyChanged(context,title,getEvent("吃饭","睡觉"));
+
+//        notifyChanged(context,title,getEvent("吃饭","睡觉"));
     }
 
     class EventViewHolder extends RecyclerView.ViewHolder {
@@ -59,7 +60,7 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     protected void onBindViewHolder(RecyclerView.ViewHolder holder, Event.EventBean item, int position) {
         Log.d(TAG, "onBindViewHolder: "+item.getContent());
         EventViewHolder eventViewHolder = (EventViewHolder) holder;
-        eventViewHolder.titleTv.setText(item.getContent());
+        eventViewHolder.titleTv.setText(item.getTitle());
     }
 
     public static Event.EventBean get(String content) {
@@ -89,12 +90,12 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     public void notifyChanged(Context context, String title, Event event){
         map.clear();
         titles.clear();
-        map.put(title, event.getDone());
+        map.put(title, event.getUndone());
         titles.add(title);
-        Log.d(TAG, "notifyChanged: "+titles.get(0));
-        if (event.getUndone().size() != 0) {
+        if (event.getDone().size() != 0) {
+            Log.d(TAG, "notifyChanged: "+event.getDone().get(1).getTitle());
             String done = context.getString(R.string.done);
-            map.put(done, event.getUndone());
+            map.put(done, event.getDone());
             titles.add(done);
         }
         resetGroups(map, titles);
