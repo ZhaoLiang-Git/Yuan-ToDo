@@ -109,6 +109,8 @@ public abstract class GroupRecyclerAdapter<Parent, Child> extends BaseRecyclerAd
         return false;
     }
 
+
+
     /**
      * 获取所在分组
      *

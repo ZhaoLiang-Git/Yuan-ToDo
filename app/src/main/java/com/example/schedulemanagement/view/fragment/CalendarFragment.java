@@ -21,6 +21,7 @@ import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
+import com.example.schedulemanagement.view.activity.AddActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
@@ -173,7 +174,12 @@ public class CalendarFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
-        showDayEvent();
+        showEvent(mTitle);
+        //子项跳转活动
+        mAdapter.setOnClickListener(position -> {
+            AddActivity.startActivityByToday(getActivity(),Constants.UPDATE);
+        });
+    //    showDayEvent();
     }
 
     @Override
@@ -195,7 +201,6 @@ public class CalendarFragment extends Fragment {
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN + "show")
                 .addParams("s_date", mDateFormat)
-//                .addParams("s_date","2019-05-26")
                 .build()
                 .execute(new EventResponseCallback() {
 
@@ -242,11 +247,12 @@ public class CalendarFragment extends Fragment {
      */
     private void showEvent(String title) {
         if (title.equals("今天")) {
-            mEvent = mAdapter.getEvent("唱跳", "rap");
+            mEvent = mAdapter.getEvent();
             Log.d(TAG, "showEvent: " + title);
         } else {
-            mEvent = mAdapter.getEvent("打篮球", "吃关东煮");
+            mEvent = mAdapter.getEvent();
         }
         mAdapter.notifyChanged(getActivity(), title, mEvent);
+        recyclerView.notifyDataSetChanged();
     }
 }

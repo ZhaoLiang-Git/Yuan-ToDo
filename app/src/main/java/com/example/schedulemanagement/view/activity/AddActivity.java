@@ -3,6 +3,7 @@ package com.example.schedulemanagement.view.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
@@ -14,10 +15,12 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
+import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
+import com.github.glomadrian.grav.figures.Grav;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -33,6 +36,7 @@ import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Call;
 
 public class AddActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
@@ -59,6 +63,8 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     @BindColor(R.color.colorAccent)
     int blueUnChecked;
 
+    private static final String TAG = "AddActivity";
+
 
     private TimePickerDialog timePickerDialog;
     private String mDateText;
@@ -72,6 +78,8 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private int mPriority = 3;
     private int[] priorityPic ={R.drawable.ic_priority_high,R.drawable.ic_priority_medium,
             R.drawable.ic_priority_low};
+
+    private int mType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +103,11 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_add:
-                add();
+                if(mType == Constants.ADD){
+                    add();
+                }else {
+                    update();
+                }
                 break;
         }
         return true;
@@ -108,7 +120,6 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private void initView() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        dateTv.setText(mDateText+"，"+mNowHour+"："+mNowMinute);
     }
 
     /**
@@ -158,29 +169,24 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         });
     }
 
-    /**
-     * 其他活动开启这个活动调用
-     * @param activity 需跳转到这个活动的活动
-     * @param date 日期
-     */
-    public static void startActivity(Activity activity,String date,String formatDate) {
-        Intent intent = new Intent(activity, AddActivity.class);
-        intent.putExtra(Constants.KEY_ADD_DATE,date);
-        intent.putExtra(Constants.KEY_ADD_DATE_FORMAT,formatDate);
-        activity.startActivity(intent);
-    }
+
 
     /**
      * 初始化数据
      */
     private void initData(){
-        mDateText = getIntent().getStringExtra(Constants.KEY_ADD_DATE);
-        mDateFormat = getIntent().getStringExtra(Constants.KEY_ADD_DATE_FORMAT);
-        Calendar calendar = Calendar.getInstance();
-        mNowHour = calendar.get(Calendar.HOUR_OF_DAY);
-        mNowMinute = calendar.get(Calendar.MINUTE);
-        mStartTime = DateUtils.formatTime(mNowHour) +":" +DateUtils.formatTime(mNowMinute) +":00";
-        CommonUtils.showToast(mDateFormat);
+        mType = getIntent().getIntExtra(Constants.KEY_ADD_TYPE,Constants.ADD);
+        if(mType == Constants.UPDATE){
+            show();
+        }else {
+            mDateText = getIntent().getStringExtra(Constants.KEY_ADD_DATE);
+            mDateFormat = getIntent().getStringExtra(Constants.KEY_ADD_DATE_FORMAT);
+            Calendar calendar = Calendar.getInstance();
+            mNowHour = calendar.get(Calendar.HOUR_OF_DAY);
+            mNowMinute = calendar.get(Calendar.MINUTE);
+            mStartTime = DateUtils.formatTime(mNowHour) +":" +DateUtils.formatTime(mNowMinute) +":00";
+            dateTv.setText(mDateText+"，"+DateUtils.formatTime(mNowHour)+"："+DateUtils.formatTime(mNowMinute));
+        }
     }
 
     @Override
@@ -220,11 +226,93 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                 });
     }
 
+    //更新修改
+    public void update(){
+        mTitle =titleTv.getText().toString().trim();
+        mContent = descriptionEdit.getText().toString().trim();
+        if(mTitle.equals("")){
+            CommonUtils.showToast("事件不能为空");
+        }
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN+"update")
+                .addParams(Constants.Params_TITLE,mTitle)
+                .addParams(Constants.Params_CONTENT,mContent)
+                .addParams(Constants.Params_STATUS,mStatus)
+                .addParams(Constants.Params_START,mStartTime)
+                .addParams(Constants.Params_DATE,mDateFormat)
+                .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
+                .build()
+                .execute(new BaseResponseCallback<Event>() {
+                    @Override
+                    public void onResponse(BaseResponse response, int id) {
+                        if(response.getCode()==0){
+                            showAddSuccess();
+                        } else {
+                            CommonUtils.showToast("修改日程失败，请重新修改");
+                        }
+                    }
+                });
+    }
+    public void show(){
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN + "show")
+                .addParams("s_date", DateUtils.getTodayDate())
+                .build()
+                .execute(new EventResponseCallback() {
+
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        CommonUtils.showToast("网络错误：" + e.toString());
+                        Log.d(TAG, "onError: " + e.toString());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(BaseResponse<Event> response, int id) {
+                        if (response.getCode() == Constants.CODE_SUCCESS) {
+                            showSuccess(response.getData());
+                        } else {
+                            CommonUtils.showToast("显示日程失败，请重新操作");
+                        }
+                    }
+                });
+    }
+
     private void showAddSuccess(){
         runOnUiThread(() -> {
-            EventBus.getDefault().post(new AddEvent(mDateFormat)); //发送成功添加日程消息，告诉主活动显示改变
+            EventBus.getDefault().post(new AddEvent()); //发送成功添加日程消息，告诉主活动显示改变
             finish();
-            CommonUtils.showToast("成功添加日程");
+            if(mType ==Constants.ADD){
+                CommonUtils.showToast("成功添加日程");
+            } else {
+                CommonUtils.showToast("成功修改日程");
+            }
+
         });
+    }
+
+    /**
+     * 显示日程
+     * @param event
+     */
+    private void showSuccess(Event event){
+
+    }
+    /**
+     * 其他活动开启这个活动调用
+     * @param activity 需跳转到这个活动的活动
+     * @param date 日期
+     */
+    public static void startActivity(Activity activity,String date,String formatDate) {
+        Intent intent = new Intent(activity, AddActivity.class);
+        intent.putExtra(Constants.KEY_ADD_DATE,date);
+        intent.putExtra(Constants.KEY_ADD_DATE_FORMAT,formatDate);
+        activity.startActivity(intent);
+    }
+
+    public static void startActivityByToday(Activity activity,int type) {
+        Intent intent = new Intent(activity, AddActivity.class);
+        intent.putExtra(Constants.KEY_ADD_TYPE,type);
+        activity.startActivity(intent);
     }
 }

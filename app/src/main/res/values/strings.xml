@@ -19,6 +19,7 @@
     <string name="nav_today">今天</string>
     <string name="nav_person">个人</string>
     <string name="done">已完成</string>
+    <string name="today_event">今日日程</string>
 
     <string name="add_want">准备做什么？</string>
     <string name="add_description">描述</string>

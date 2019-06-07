@@ -14,4 +14,5 @@
     <color name="black">#000</color>
     <color name="line">#E0E0E0</color>
     <color name="gray">#9E9E9E</color>
+    <color name="group_color">#81D4FA</color>
 </resources>
