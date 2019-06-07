@@ -6,8 +6,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         initFragment();
     }
 
+    @SuppressLint("RestrictedApi")
     private void initView() {
         mBottomNav = findViewById(R.id.navigation);
         mTextMessage = findViewById(R.id.message);
@@ -48,14 +51,17 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     showAndHideFragment(0,mPreFragmentPosition);
                     mPreFragmentPosition = 0;
+                    addFloatingBtn.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_today:
                     showAndHideFragment(1,mPreFragmentPosition);
                     mPreFragmentPosition = 1;
+                    addFloatingBtn.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_person:
                     showAndHideFragment(2,mPreFragmentPosition);
                     mPreFragmentPosition = 2;
+                    addFloatingBtn.setVisibility(View.GONE);
                     return true;
             }
             return false;

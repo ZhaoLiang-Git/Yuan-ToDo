@@ -25,4 +25,8 @@
     <string name="add_description">描述</string>
     <string name="dialog_cancel">取消</string>
     <string name="dialog_ok">确定</string>
+
+    <string name="person_logout">退出登录</string>
+    <string name="person_setting">设置</string>
+    <string name="person_about">关于我们</string>
 </resources>
