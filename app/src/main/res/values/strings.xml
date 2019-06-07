@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScheduleManagement</string>
+    <string name="app_name">ToDo日程</string>
     //登录注册
     <string name="login">登录</string>
     <string name="register">注册</string>
