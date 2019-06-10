@@ -9,7 +9,11 @@ package com.example.schedulemanagement.base.adapter;
  */
 
 import android.content.Context;
+
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +26,15 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter {
+    private static final String TAG = "BaseRecyclerAdapter";
 
     protected LayoutInflater mInflater;
     protected List<T> mItems;
     private OnItemClickListener onItemClickListener;
     private OnClickListener onClickListener;
+    private boolean isBind;
 
-    public  BaseRecyclerAdapter(Context context) {
+    public BaseRecyclerAdapter(Context context) {
         this.mItems = new ArrayList<>();
         mInflater = LayoutInflater.from(context);
         onClickListener = new OnClickListener() {
@@ -53,7 +59,9 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        isBind = false;
         onBindViewHolder(holder, mItems.get(position), position);
+        isBind = true;
     }
 
     protected abstract RecyclerView.ViewHolder onCreateDefaultViewHolder(ViewGroup parent, int type);
@@ -118,13 +126,17 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter {
     }
 
     protected final void removeItem(int position) {
+        Log.d(TAG, "removeItem: " + position);
         if (this.getItemCount() > position) {
             this.mItems.remove(position);
+
             notifyItemRemoved(position);
+            notifyItemRangeChanged(position, mItems.size() - position);
+
         }
     }
 
-    protected final void clear(){
+    protected final void clear() {
         mItems.clear();
         notifyDataSetChanged();
     }

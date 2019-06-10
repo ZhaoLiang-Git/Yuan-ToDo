@@ -4,12 +4,17 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.event.GroupTitlesEvent;
 import com.example.schedulemanagement.view.activity.AddActivity;
 import com.example.schedulemanagement.widget.group.GroupRecyclerAdapter;
+import com.example.schedulemanagement.widget.group.GroupRecyclerView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -35,11 +40,13 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     List<String> titles = new ArrayList<>();
     private Context mContext;
     private OnClickListener listener;
+    private GroupRecyclerView mRecyclerView;
 
 
-    public EventAdapter(Context context) {
+    public EventAdapter(Context context,GroupRecyclerView recyclerView) {
         super(context);
         mContext =context;
+        mRecyclerView = recyclerView;
     }
 
     class EventViewHolder extends RecyclerView.ViewHolder {
@@ -74,11 +81,13 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
             eventViewHolder.stateCheckBox.setChecked(false);
             eventViewHolder.titleTv.setTextColor(mContext.getResources().getColor(R.color.black));
         }
-        eventViewHolder.stateCheckBox.setOnCheckedChangeListener(((compoundButton, checked) -> {
-            if(checked){
+        eventViewHolder.stateCheckBox.setOnCheckedChangeListener((compoundButton, checked) -> {
+            if(mRecyclerView.getScrollState() ==RecyclerView.SCROLL_STATE_IDLE
+                    && !mRecyclerView.isComputingLayout()){
                 removeGroupItem(position);
             }
-        }));
+            mRecyclerView.notifyDataSetChanged();
+        });
         //点击效果
         eventViewHolder.mView.setOnClickListener(view -> listener.onClick(position));
     }
@@ -113,6 +122,28 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
         doneBean.add(getDone("嗨歌"));
         doneBean.add(getDone("周杰伦"));
         doneBean.add(getDone("暗号"));
+
+        event.setDone(doneBean);
+        event.setUndone(unDoneBean);
+        return event;
+    }
+    public static Event getEvent1() {
+        Event event = new Event();
+        List<Event.EventBean> doneBean = new ArrayList<>();
+        List<Event.EventBean> unDoneBean = new ArrayList<>();
+        unDoneBean.add(get("洗澡"));
+        unDoneBean.add(get("睡觉"));
+        unDoneBean.add(get("复习"));
+        doneBean.add(getDone("吃饭"));
+        doneBean.add(getDone("上课"));
+        doneBean.add(getDone("对接"));
+        doneBean.add(getDone("打豆豆"));
+        doneBean.add(getDone("听歌"));
+        doneBean.add(getDone("唱歌"));
+        doneBean.add(getDone("嗨歌"));
+        doneBean.add(getDone("周杰伦"));
+        doneBean.add(getDone("暗号"));
+        doneBean.add(getDone("软工考试"));
 
         event.setDone(doneBean);
         event.setUndone(unDoneBean);

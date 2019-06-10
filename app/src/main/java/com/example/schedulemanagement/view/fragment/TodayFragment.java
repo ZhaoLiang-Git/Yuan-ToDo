@@ -12,12 +12,18 @@ import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.event.AddEvent;
+import com.example.schedulemanagement.event.GroupTitlesEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.AddActivity;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
 import com.zhy.http.okhttp.OkHttpUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Date;
 
@@ -53,12 +59,29 @@ public class TodayFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    //添加日程成功重新显示日程
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAddEvent(GroupTitlesEvent event) {
+        recyclerView.notifyDataSetChanged();
+    }
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initRecyclerView();
     }
     private void initRecyclerView(){
-        mAdapter = new EventAdapter(getActivity());
+        mAdapter = new EventAdapter(getActivity(),recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
@@ -66,6 +89,9 @@ public class TodayFragment extends Fragment {
         mAdapter.setOnClickListener(position -> {
             AddActivity.startActivityByToday(getActivity(),Constants.UPDATE);
         });
+
+
+        recyclerView.notifyDataSetChanged();
 //        showDayEvent();
         showEvent();
 

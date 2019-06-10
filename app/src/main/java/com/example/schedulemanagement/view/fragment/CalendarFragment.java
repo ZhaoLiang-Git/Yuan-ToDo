@@ -170,16 +170,16 @@ public class CalendarFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        mAdapter = new EventAdapter(getActivity());
+        mAdapter = new EventAdapter(getActivity(),recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
         showEvent(mTitle);
         //子项跳转活动
         mAdapter.setOnClickListener(position -> {
-            AddActivity.startActivityByToday(getActivity(),Constants.UPDATE);
+            AddActivity.startActivityByToday(getActivity(), Constants.UPDATE);
         });
-    //    showDayEvent();
+        //    showDayEvent();
     }
 
     @Override
