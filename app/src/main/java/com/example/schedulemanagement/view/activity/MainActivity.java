@@ -1,5 +1,6 @@
 package com.example.schedulemanagement.view.activity;
 
+import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.fragment.app.Fragment;
@@ -7,6 +8,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -29,11 +31,13 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addFloatingBtn;
     private String mDateText = "今天";
     private String mDateFormat;
+    private String mUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mUsername = getIntent().getStringExtra(Constants.KEY_USERNAME);
         initView();
         initFragment();
     }
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private void initFragment() {
         mFragments.add(CalendarFragment.newInstance());
         mFragments.add(TodayFragment.newInstance());
-        mFragments.add(PersonFragment.newInstance());
+        mFragments.add(PersonFragment.newInstance(mUsername));
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         for (int i = 0; i < mFragments.size(); i++) {
             transaction.add(R.id.frameContain,mFragments.get(i));
@@ -97,6 +101,17 @@ public class MainActivity extends AppCompatActivity {
     public void setDateText(String dateText,String dateFormat){
         mDateText = dateText;
         mDateFormat = dateFormat;
+    }
+
+    /**
+     * 供其它活动使用
+     * @param activity
+     * @param username
+     */
+    public static void startActivity(Activity activity,String username){
+        Intent intent = new Intent(activity,MainActivity.class);
+        intent.putExtra(Constants.KEY_USERNAME,username);
+        activity.startActivity(intent);
     }
 
 }

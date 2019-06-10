@@ -20,12 +20,14 @@ import okhttp3.OkHttpClient;
 
 public class App extends Application {
     private static App mApp;
+    private static PersistentCookieStore mCookieStore;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mApp = this;
-        CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));
+        mCookieStore = new PersistentCookieStore(getApplicationContext());
+        CookieJarImpl cookieJar = new CookieJarImpl(mCookieStore);
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .connectTimeout(10000L, TimeUnit.MILLISECONDS)
@@ -37,5 +39,9 @@ public class App extends Application {
 
     public static App getContext(){
         return mApp;
+    }
+
+    public static PersistentCookieStore getCookieStore(){
+        return mCookieStore;
     }
 }

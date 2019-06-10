@@ -69,8 +69,8 @@ public class LoginFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         loginBtn.setOnRippleCompleteListener(rippleView ->
-//            login(usernameEdit.getText().toString(), passwordEdit.getText().toString()));
-                startActivity(new Intent(getActivity(), MainActivity.class)));
+          login(usernameEdit.getText().toString(), passwordEdit.getText().toString()));
+//                startActivity(new Intent(getActivity(), MainActivity.class)));
         registerBtn.setOnClickListener(view -> ((LoginActivity) getActivity()).toRegisterFragment());
 
     }
@@ -103,7 +103,7 @@ public class LoginFragment extends Fragment {
                         @Override
                         public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
                             if (response.getCode() == Constants.CODE_SUCCESS) {
-                                loginSuccess();
+                                loginSuccess(response.getData().getUname());
                             } else {
                                 loginFail(response.getMsg());
                             }
@@ -117,10 +117,10 @@ public class LoginFragment extends Fragment {
     /**
      * 登录成功
      */
-    private void loginSuccess() {
+    private void loginSuccess(String username) {
         getActivity().runOnUiThread(() -> {
             getActivity().finish();
-            toMainActivity();
+            MainActivity.startActivity(getActivity(),username);
             CommonUtils.showToast(getActivity(),getString(R.string.login_success));
         });
     }

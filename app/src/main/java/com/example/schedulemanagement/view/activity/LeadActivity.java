@@ -21,7 +21,7 @@ public class LeadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lead);
         //ck();
-        toMainActivity();
+        toMainActivity("Jay");
     }
     private void ck(){
         OkHttpUtils.post()
@@ -29,18 +29,18 @@ public class LeadActivity extends AppCompatActivity {
                 .build()
                 .execute(new BaseResponseCallback<LoginAndRegister>() {
                     @Override
-                    public void onResponse(BaseResponse response, int id) {
+                    public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
                         if(response.getCode() == Constants.CODE_SUCCESS){
-                            toMainActivity();
+                            toMainActivity(response.getData().getUname());
                         }else {
                             toLoginActivity();
                         }
                     }
                 });
     }
-    public void toMainActivity(){
+    public void toMainActivity(String username){
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(LeadActivity.this, MainActivity.class));
+            MainActivity.startActivity(this,username);
             overridePendingTransition(R.anim.anim_launch_enter, 0);
             finish();
         }, 2000);
