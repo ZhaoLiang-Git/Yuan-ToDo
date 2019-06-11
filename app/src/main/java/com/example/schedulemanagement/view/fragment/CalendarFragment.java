@@ -19,10 +19,13 @@ import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Article;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.event.AddEvent;
+import com.example.schedulemanagement.event.DeleteEvent;
+import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.AddActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
+import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
 import com.google.gson.Gson;
@@ -45,6 +48,7 @@ import java.util.Map;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
@@ -78,6 +82,10 @@ public class CalendarFragment extends Fragment {
     CalendarLayout calendarLayout;
     @BindView(R.id.todayIv)
     ImageView todayIv;
+    @BindString(R.string.dialog_delete_text)
+    String deleteText;
+    @BindString(R.string.dialog_delete_title)
+    String deleteTitle;
 
     private EventAdapter mAdapter;
     private Event mEvent = new Event();
@@ -117,6 +125,36 @@ public class CalendarFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAddEvent(AddEvent event) {
         showDayEvent();
+    }
+
+    //删除日程
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeleteEvent(DeleteEvent event) {
+        ConfirmDialog dialog = new ConfirmDialog(getActivity());
+        dialog.setOnClickListener(() -> {
+            delete(event.getId());
+        });
+        dialog.setText(deleteText).setTitle(deleteTitle).show();
+    }
+
+    //更新日程
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUpdateEvent(UpdateStateEvent event) {
+        String status = event.isChecked()?"done":"undone";
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN+"update")
+                .addParams(Constants.Params_STATUS,status)
+                .build()
+                .execute(new BaseResponseCallback<Event>() {
+                    @Override
+                    public void onResponse(BaseResponse response, int id) {
+                        if(response.getCode() == Constants.CODE_SUCCESS){
+                            showDayEvent();
+                        }else {
+                            CommonUtils.showToast("修改日程失败");
+                        }
+                    }
+                });
     }
 
 
@@ -221,6 +259,25 @@ public class CalendarFragment extends Fragment {
                     }
                 });
     }
+    /**
+     * 删除日程
+     */
+    private void delete(int id){
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN+"delete")
+                .addParams(Constants.Params_ID,id+"")
+                .build()
+                .execute(new BaseResponseCallback<Event>() {
+                    @Override
+                    public void onResponse(BaseResponse response, int id) {
+                        if(response.getCode() == 200){
+                            showDeleteSuccess();
+                        }else {
+                            CommonUtils.showToast(response.getMsg());
+                        }
+                    }
+                });
+    }
 
     /**
      * 查询日程成功
@@ -242,6 +299,15 @@ public class CalendarFragment extends Fragment {
         CommonUtils.showToast(getActivity(), msg);
     }
 
+    /**
+     * 删除日程成功
+     */
+    private void showDeleteSuccess() {
+        getActivity().runOnUiThread(() -> {
+            CommonUtils.showToast("删除日程成功");
+            showDayEvent(); //网络获取日程
+        });
+    }
     /**
      * 测试
      */
