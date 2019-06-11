@@ -4,13 +4,12 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.entity.Event;
-import com.example.schedulemanagement.event.GroupTitlesEvent;
-import com.example.schedulemanagement.view.activity.AddActivity;
+import com.example.schedulemanagement.event.DeleteEvent;
+import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.widget.group.GroupRecyclerAdapter;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
 
@@ -82,14 +81,22 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
             eventViewHolder.titleTv.setTextColor(mContext.getResources().getColor(R.color.black));
         }
         eventViewHolder.stateCheckBox.setOnCheckedChangeListener((compoundButton, checked) -> {
-            if(mRecyclerView.getScrollState() ==RecyclerView.SCROLL_STATE_IDLE
-                    && !mRecyclerView.isComputingLayout()){
-                removeGroupItem(position);
-            }
-            mRecyclerView.notifyDataSetChanged();
+//            if(mRecyclerView.getScrollState() ==RecyclerView.SCROLL_STATE_IDLE
+//                    && !mRecyclerView.isComputingLayout()){
+//                removeGroupItem(position);
+//            }
+//            mRecyclerView.notifyDataSetChanged();
+            EventBus.getDefault().post(new UpdateStateEvent(item.getId(),checked));
         });
         //点击效果
         eventViewHolder.mView.setOnClickListener(view -> listener.onClick(position));
+        eventViewHolder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                EventBus.getDefault().post(new DeleteEvent(item.getId()));
+                return true;
+            }
+        });
     }
 
     public static Event.EventBean get(String title) {

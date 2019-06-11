@@ -13,6 +13,7 @@ public class Constants {
     public static final String BASE_URL_MAIN="http://192.168.43.118:8080/Memo/main/";
 
 //    public static final String BASE_URL="http://192.168.160.1:8080/Memo/";
+public static final String Params_ID="id";
     public static final String Params_TITLE="title";
     public static final String Params_CONTENT="content";
     public static final String Params_PRIORITY="priority";

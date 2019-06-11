@@ -10,13 +10,15 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.adapter.EventAdapter;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
+import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Event;
-import com.example.schedulemanagement.event.AddEvent;
-import com.example.schedulemanagement.event.GroupTitlesEvent;
+import com.example.schedulemanagement.event.DeleteEvent;
+import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.AddActivity;
+import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -25,11 +27,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Date;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
@@ -45,6 +46,10 @@ import okhttp3.Call;
 public class TodayFragment extends Fragment {
     @BindView(R.id.recyclerView)
     GroupRecyclerView recyclerView;
+    @BindString(R.string.dialog_delete_text)
+    String deleteText;
+    @BindString(R.string.dialog_delete_title)
+    String deleteTitle;
 
     private static final String TAG = "TodayFragment";
     private EventAdapter mAdapter;
@@ -70,11 +75,36 @@ public class TodayFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    //添加日程成功重新显示日程
+    //删除日程
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAddEvent(GroupTitlesEvent event) {
-        recyclerView.notifyDataSetChanged();
+    public void onDeleteEvent(DeleteEvent event) {
+        ConfirmDialog dialog = new ConfirmDialog(getActivity());
+        dialog.setOnClickListener(() -> {
+            delete(event.getId());
+        });
+        dialog.setText(deleteText).setTitle(deleteTitle).show();
     }
+
+    //更新日程
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUpdateEvent(UpdateStateEvent event) {
+        String status = event.isChecked()?"done":"undone";
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN+"update")
+                .addParams(Constants.Params_STATUS,status)
+                .build()
+                .execute(new BaseResponseCallback<Event>() {
+                    @Override
+                    public void onResponse(BaseResponse response, int id) {
+                        if(response.getCode() == Constants.CODE_SUCCESS){
+                            showDayEvent();
+                        }else {
+                            CommonUtils.showToast("修改日程失败");
+                        }
+                    }
+                });
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -90,10 +120,10 @@ public class TodayFragment extends Fragment {
             AddActivity.startActivityByToday(getActivity(),Constants.UPDATE);
         });
 
-
         recyclerView.notifyDataSetChanged();
 //        showDayEvent();
         showEvent();
+
 
     }
 
@@ -125,6 +155,25 @@ public class TodayFragment extends Fragment {
                 });
     }
     /**
+     * 删除日程
+     */
+    private void delete(int id){
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL_MAIN+"delete")
+                .addParams(Constants.Params_ID,id+"")
+                .build()
+                .execute(new BaseResponseCallback<Event>() {
+                    @Override
+                    public void onResponse(BaseResponse response, int id) {
+                        if(response.getCode() == 200){
+                            showDeleteSuccess();
+                        }else {
+                            CommonUtils.showToast(response.getMsg());
+                        }
+                    }
+                });
+    }
+    /**
      * 查询日程成功
      *
      * @param event 事件
@@ -141,6 +190,17 @@ public class TodayFragment extends Fragment {
      */
     private void showFail(String msg) {
         CommonUtils.showToast(getActivity(), msg);
+    }
+
+    /**
+     * 删除日程成功
+     */
+    private void showDeleteSuccess(){
+        getActivity().runOnUiThread(()->{
+            CommonUtils.showToast("删除日程成功");
+            showDayEvent(); //网络获取日程
+        });
+
     }
 
     /**

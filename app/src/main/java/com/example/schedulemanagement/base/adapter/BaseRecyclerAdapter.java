@@ -129,10 +129,8 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter {
         Log.d(TAG, "removeItem: " + position);
         if (this.getItemCount() > position) {
             this.mItems.remove(position);
-
             notifyItemRemoved(position);
-            notifyItemRangeChanged(position, mItems.size() - position);
-
+            notifyItemRangeChanged(position, mItems.size());
         }
     }
 
