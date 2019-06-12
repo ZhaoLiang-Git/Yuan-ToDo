@@ -52,4 +52,18 @@ public class DateUtils {
         }
         return ""+time;
     }
+
+    /**
+     * 格式化时间
+     * @param time
+     * @return
+     */
+    public static String timeFormat(String time){
+        return time.substring(0,5);
+    }
+
+    public static String dateFormat(String date){
+        String[] dates = date.split("-");
+        return dates[1]+"月"+dates[2]+"日";
+    }
 }

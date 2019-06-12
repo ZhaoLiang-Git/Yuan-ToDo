@@ -1,6 +1,7 @@
 package com.example.schedulemanagement.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -40,13 +41,12 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     List<String> titles = new ArrayList<>();
     private Context mContext;
     private OnClickListener listener;
-    private GroupRecyclerView mRecyclerView;
 
 
-    public EventAdapter(Context context,GroupRecyclerView recyclerView) {
+
+    public EventAdapter(Context context) {
         super(context);
         mContext =context;
-        mRecyclerView = recyclerView;
     }
 
     class EventViewHolder extends RecyclerView.ViewHolder {
@@ -81,13 +81,9 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
             eventViewHolder.stateCheckBox.setChecked(false);
             eventViewHolder.titleTv.setTextColor(mContext.getResources().getColor(R.color.black));
         }
-        eventViewHolder.stateCheckBox.setOnCheckedChangeListener((compoundButton, checked) -> {
-//            if(mRecyclerView.getScrollState() ==RecyclerView.SCROLL_STATE_IDLE
-//                    && !mRecyclerView.isComputingLayout()){
-//                removeGroupItem(position);
-//            }
-//            mRecyclerView.notifyDataSetChanged();
-            EventBus.getDefault().post(new UpdateStateEvent(item.getId(),checked));
+        eventViewHolder.stateCheckBox.setOnClickListener(view -> {
+            boolean checked = ((CheckBox) view).isChecked();
+            EventBus.getDefault().post(new UpdateStateEvent(item,checked));
         });
         //点击效果
         eventViewHolder.mView.setOnClickListener(view -> {
@@ -106,64 +102,66 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
             return true;
         });
     }
-
-    public static Event.EventBean get(String title) {
-        Event.EventBean event = new Event.EventBean();
-        event.setTitle(title);
-        event.setStatus("undone");
-        return event;
-    }
-    public static Event.EventBean getDone(String title) {
-        Event.EventBean event = new Event.EventBean();
-        event.setTitle(title);
-        event.setStatus("done");
-        return event;
-    }
-
-    public static Event getEvent() {
-        Event event = new Event();
-        List<Event.EventBean> doneBean = new ArrayList<>();
-        List<Event.EventBean> unDoneBean = new ArrayList<>();
-        unDoneBean.add(get("洗澡"));
-        unDoneBean.add(get("睡觉"));
-        unDoneBean.add(get("软工考试"));
-        unDoneBean.add(get("复习"));
-        doneBean.add(getDone("吃饭"));
-        doneBean.add(getDone("上课"));
-        doneBean.add(getDone("对接"));
-        doneBean.add(getDone("打豆豆"));
-        doneBean.add(getDone("听歌"));
-        doneBean.add(getDone("唱歌"));
-        doneBean.add(getDone("嗨歌"));
-        doneBean.add(getDone("周杰伦"));
-        doneBean.add(getDone("暗号"));
-
-        event.setDone(doneBean);
-        event.setUndone(unDoneBean);
-        return event;
-    }
-    public static Event getEvent1() {
-        Event event = new Event();
-        List<Event.EventBean> doneBean = new ArrayList<>();
-        List<Event.EventBean> unDoneBean = new ArrayList<>();
-        unDoneBean.add(get("洗澡"));
-        unDoneBean.add(get("睡觉"));
-        unDoneBean.add(get("复习"));
-        doneBean.add(getDone("吃饭"));
-        doneBean.add(getDone("上课"));
-        doneBean.add(getDone("对接"));
-        doneBean.add(getDone("打豆豆"));
-        doneBean.add(getDone("听歌"));
-        doneBean.add(getDone("唱歌"));
-        doneBean.add(getDone("嗨歌"));
-        doneBean.add(getDone("周杰伦"));
-        doneBean.add(getDone("暗号"));
-        doneBean.add(getDone("软工考试"));
-
-        event.setDone(doneBean);
-        event.setUndone(unDoneBean);
-        return event;
-    }
+/*
+测试方法
+ */
+//    public static Event.EventBean get(String title) {
+//        Event.EventBean event = new Event.EventBean();
+//        event.setTitle(title);
+//        event.setStatus("undone");
+//        return event;
+//    }
+//    public static Event.EventBean getDone(String title) {
+//        Event.EventBean event = new Event.EventBean();
+//        event.setTitle(title);
+//        event.setStatus("done");
+//        return event;
+//    }
+//
+//    public static Event getEvent() {
+//        Event event = new Event();
+//        List<Event.EventBean> doneBean = new ArrayList<>();
+//        List<Event.EventBean> unDoneBean = new ArrayList<>();
+//        unDoneBean.add(get("洗澡"));
+//        unDoneBean.add(get("睡觉"));
+//        unDoneBean.add(get("软工考试"));
+//        unDoneBean.add(get("复习"));
+//        doneBean.add(getDone("吃饭"));
+//        doneBean.add(getDone("上课"));
+//        doneBean.add(getDone("对接"));
+//        doneBean.add(getDone("打豆豆"));
+//        doneBean.add(getDone("听歌"));
+//        doneBean.add(getDone("唱歌"));
+//        doneBean.add(getDone("嗨歌"));
+//        doneBean.add(getDone("周杰伦"));
+//        doneBean.add(getDone("暗号"));
+//
+//        event.setDone(doneBean);
+//        event.setUndone(unDoneBean);
+//        return event;
+//    }
+//    public static Event getEvent1() {
+//        Event event = new Event();
+//        List<Event.EventBean> doneBean = new ArrayList<>();
+//        List<Event.EventBean> unDoneBean = new ArrayList<>();
+//        unDoneBean.add(get("洗澡"));
+//        unDoneBean.add(get("睡觉"));
+//        unDoneBean.add(get("复习"));
+//        doneBean.add(getDone("吃饭"));
+//        doneBean.add(getDone("上课"));
+//        doneBean.add(getDone("对接"));
+//        doneBean.add(getDone("打豆豆"));
+//        doneBean.add(getDone("听歌"));
+//        doneBean.add(getDone("唱歌"));
+//        doneBean.add(getDone("嗨歌"));
+//        doneBean.add(getDone("周杰伦"));
+//        doneBean.add(getDone("暗号"));
+//        doneBean.add(getDone("软工考试"));
+//
+//        event.setDone(doneBean);
+//        event.setUndone(unDoneBean);
+//        return event;
+//    }
 
     public void notifyChanged(Context context, String title, Event event) {
         map.clear();

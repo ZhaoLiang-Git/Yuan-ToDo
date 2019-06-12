@@ -83,6 +83,7 @@ public class CalendarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -96,15 +97,10 @@ public class CalendarFragment extends Fragment {
         initRecyclerView();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
 
@@ -112,6 +108,7 @@ public class CalendarFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAddEvent(AddEvent event) {
         showDayEvent();
+        Log.d(TAG, "onAddEvent: "+mDateFormat);
     }
 
 
@@ -122,6 +119,12 @@ public class CalendarFragment extends Fragment {
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN+"update")
                 .addParams(Constants.Params_STATUS,status)
+                .addParams(Constants.Params_ID,event.getEventBean().getId()+"")
+                .addParams(Constants.Params_TITLE,event.getEventBean().getTitle())
+                .addParams(Constants.Params_CONTENT,event.getEventBean().getContent())
+                .addParams(Constants.Params_START,event.getEventBean().getS_starting())
+                .addParams(Constants.Params_DATE,event.getEventBean().getS_date())
+                .addParams(Constants.Params_PRIORITY,event.getEventBean().getPriority())
                 .build()
                 .execute(new BaseResponseCallback<Event>() {
                     @Override
@@ -186,16 +189,16 @@ public class CalendarFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        mAdapter = new EventAdapter(getActivity(),recyclerView);
+        mAdapter = new EventAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
-        showEvent(mTitle);
+     //   showEvent(mTitle);
         //子项跳转活动
         mAdapter.setOnClickListener((position,schedule) -> {
             AddActivity.startActivityByUpdate(getActivity(), Constants.UPDATE,schedule);
         });
-        //    showDayEvent();
+        showDayEvent();
     }
 
     @Override
@@ -237,25 +240,6 @@ public class CalendarFragment extends Fragment {
                     }
                 });
     }
-    /**
-     * 删除日程
-     */
-    private void delete(int id){
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN+"delete")
-                .addParams(Constants.Params_ID,id+"")
-                .build()
-                .execute(new BaseResponseCallback<Event>() {
-                    @Override
-                    public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode() == 200){
-                            showDeleteSuccess();
-                        }else {
-                            CommonUtils.showToast(response.getMsg());
-                        }
-                    }
-                });
-    }
 
     /**
      * 查询日程成功
@@ -289,14 +273,14 @@ public class CalendarFragment extends Fragment {
     /**
      * 测试
      */
-    private void showEvent(String title) {
-        if (title.equals("今天")) {
-            mEvent = mAdapter.getEvent();
-            Log.d(TAG, "showEvent: " + title);
-        } else {
-            mEvent = mAdapter.getEvent();
-        }
-        mAdapter.notifyChanged(getActivity(), title, mEvent);
-        recyclerView.notifyDataSetChanged();
-    }
+//    private void showEvent(String title) {
+//        if (title.equals("今天")) {
+//            mEvent = mAdapter.getEvent();
+//            Log.d(TAG, "showEvent: " + title);
+//        } else {
+//            mEvent = mAdapter.getEvent();
+//        }
+//        mAdapter.notifyChanged(getActivity(), title, mEvent);
+//        recyclerView.notifyDataSetChanged();
+//    }
 }

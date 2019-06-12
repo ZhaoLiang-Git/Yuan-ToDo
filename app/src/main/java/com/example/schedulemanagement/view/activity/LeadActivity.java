@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.app.Constants;
@@ -15,13 +16,14 @@ import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 public class LeadActivity extends AppCompatActivity {
+    private static final String TAG = "LeadActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lead);
-        //ck();
-        toMainActivity("Jay");
+        ck();
+//        toMainActivity("Jay");
     }
     private void ck(){
         OkHttpUtils.post()
@@ -30,6 +32,7 @@ public class LeadActivity extends AppCompatActivity {
                 .execute(new BaseResponseCallback<LoginAndRegister>() {
                     @Override
                     public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
+                        Log.d(TAG, "onResponse: ");
                         if(response.getCode() == Constants.CODE_SUCCESS){
                             toMainActivity(response.getData().getUname());
                         }else {

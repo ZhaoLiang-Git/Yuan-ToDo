@@ -151,7 +151,8 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         //日期
         eventCl.setOnClickListener(view -> timePickerDialog.show(getSupportFragmentManager(),"timePickerDialog"));
         //状态选择
-        statusCheckBox.setOnCheckedChangeListener((compoundButton, checked) -> {
+        statusCheckBox.setOnClickListener(view -> {
+            boolean checked = ((CheckBox)view).isChecked();
             if(checked){
                 mStatus = "done";
                 dateTv.setTextColor(grayChecked);
@@ -171,6 +172,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                             -> {
                                 priorityIv.setImageDrawable(getDrawable(priorityPic[which]));
                                 mPriority = which+1;
+                                dialog1.cancel();
                             }).create();
             dialog.show();
         });
@@ -208,31 +210,31 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
      * 提交添加日程的请求
      */
     private void add(){
-
         mTitle =titleTv.getText().toString().trim();
         mContent = descriptionEdit.getText().toString().trim();
         if(mTitle.equals("")){
             CommonUtils.showToast("事件不能为空");
-        }
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN+"add")
-                .addParams(Constants.Params_TITLE,mTitle)
-                .addParams(Constants.Params_CONTENT,mContent)
-                .addParams(Constants.Params_STATUS,mStatus)
-                .addParams(Constants.Params_START,mStartTime)
-                .addParams(Constants.Params_DATE,mDateFormat)
-                .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
-                .build()
-                .execute(new BaseResponseCallback<Event>() {
-                    @Override
-                    public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode()==0){
-                            showAddSuccess();
-                        } else {
-                            CommonUtils.showToast("添加日程失败，请重新添加");
+        }else {
+            OkHttpUtils.post()
+                    .url(Constants.BASE_URL_MAIN+"add")
+                    .addParams(Constants.Params_TITLE,mTitle)
+                    .addParams(Constants.Params_CONTENT,mContent)
+                    .addParams(Constants.Params_STATUS,mStatus)
+                    .addParams(Constants.Params_START,mStartTime)
+                    .addParams(Constants.Params_DATE,mDateFormat)
+                    .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
+                    .build()
+                    .execute(new BaseResponseCallback<Event>() {
+                        @Override
+                        public void onResponse(BaseResponse response, int id) {
+                            if(response.getCode()==0){
+                                showAddSuccess();
+                            } else {
+                                CommonUtils.showToast("添加日程失败，请重新添加");
+                            }
                         }
-                    }
-                });
+                    });
+        }
     }
 
     //更新修改
@@ -241,35 +243,40 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         mContent = descriptionEdit.getText().toString().trim();
         if(mTitle.equals("")){
             CommonUtils.showToast("事件不能为空");
-        }
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN+"update")
-                .addParams(Constants.Params_ID,mId+"")
-                .addParams(Constants.Params_TITLE,mTitle)
-                .addParams(Constants.Params_CONTENT,mContent)
-                .addParams(Constants.Params_STATUS,mStatus)
-                .addParams(Constants.Params_START,mStartTime)
-                .addParams(Constants.Params_DATE,mDateFormat)
-                .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
-                .build()
-                .execute(new BaseResponseCallback<Event>() {
-                    @Override
-                    public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode()==0){
-                            showAddSuccess();
-                        } else {
-                            CommonUtils.showToast("修改日程失败，请重新修改");
+        }else {
+            OkHttpUtils.post()
+                    .url(Constants.BASE_URL_MAIN+"update")
+                    .addParams(Constants.Params_ID,mId+"")
+                    .addParams(Constants.Params_TITLE,mTitle)
+                    .addParams(Constants.Params_CONTENT,mContent)
+                    .addParams(Constants.Params_STATUS,mStatus)
+                    .addParams(Constants.Params_START,mStartTime)
+                    .addParams(Constants.Params_DATE,mDateFormat)
+                    .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
+                    .build()
+                    .execute(new BaseResponseCallback<Event>() {
+                        @Override
+                        public void onResponse(BaseResponse response, int id) {
+                            if(response.getCode()==0){
+                                showAddSuccess();
+                            } else {
+                                CommonUtils.showToast("修改日程失败，请重新修改");
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
     public void show(){
         Schedule schedule = (Schedule) getIntent().getSerializableExtra(Constants.KEY_SCHEDULE);
         mId =schedule.getId();
-        mDateText = schedule.getS_date();
-        dateTv.setText(schedule.getS_date()+","+schedule.getS_starting());
+        mStartTime =schedule.getS_starting();
+        mStatus = schedule.getStatus();
+        mDateFormat = schedule.getS_date();
+        mDateText = DateUtils.dateFormat(schedule.getS_date());
+        dateTv.setText(DateUtils.dateFormat(schedule.getS_date())+"，"+DateUtils.timeFormat(schedule.getS_starting()));
         if(schedule.getStatus().equals("done")){
             statusCheckBox.setChecked(true);
             dateTv.setTextColor(grayChecked);

@@ -16,6 +16,7 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
+import com.example.schedulemanagement.callback.LoginAndRegisterCallback;
 import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.view.activity.LoginActivity;
@@ -92,7 +93,7 @@ public class LoginFragment extends Fragment {
                     .addParams("uname", username) //用户名
                     .addParams("pwd", password) //密码
                     .build()
-                    .execute(new BaseResponseCallback<LoginAndRegister>() { //回调
+                    .execute(new LoginAndRegisterCallback() { //回调
                         @Override
                         public void onError(Call call, Exception e, int id) {
                             CommonUtils.showToast(getActivity(),"网络错误："+e.toString());

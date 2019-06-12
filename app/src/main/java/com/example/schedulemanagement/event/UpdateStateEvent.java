@@ -1,5 +1,7 @@
 package com.example.schedulemanagement.event;
 
+import com.example.schedulemanagement.entity.Event;
+
 /**
  * <pre>
  *     author : 残渊
@@ -9,15 +11,15 @@ package com.example.schedulemanagement.event;
  */
 
 public class UpdateStateEvent {
-    int id;
+    Event.EventBean eventBean;
     boolean checked;
-    public UpdateStateEvent(int id, boolean checked){
-        this.id = id;
+    public UpdateStateEvent(Event.EventBean eventBean, boolean checked){
+        this.eventBean = eventBean;
         this.checked = checked;
     }
 
-    public int getId() {
-        return id;
+    public Event.EventBean getEventBean() {
+        return eventBean;
     }
 
     public boolean isChecked() {

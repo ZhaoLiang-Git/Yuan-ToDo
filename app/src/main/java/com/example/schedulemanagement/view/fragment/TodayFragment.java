@@ -59,20 +59,15 @@ public class TodayFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_today, container, false);
         ButterKnife.bind(this,view);
         return view;
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
     //添加日程成功重新显示日程
@@ -98,6 +93,12 @@ public class TodayFragment extends Fragment {
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN+"update")
                 .addParams(Constants.Params_STATUS,status)
+                .addParams(Constants.Params_ID,event.getEventBean().getId()+"")
+                .addParams(Constants.Params_TITLE,event.getEventBean().getTitle())
+                .addParams(Constants.Params_CONTENT,event.getEventBean().getContent())
+                .addParams(Constants.Params_START,event.getEventBean().getS_starting())
+                .addParams(Constants.Params_DATE,event.getEventBean().getS_date())
+                .addParams(Constants.Params_PRIORITY,event.getEventBean().getPriority())
                 .build()
                 .execute(new BaseResponseCallback<Event>() {
                     @Override
@@ -117,7 +118,7 @@ public class TodayFragment extends Fragment {
         initRecyclerView();
     }
     private void initRecyclerView(){
-        mAdapter = new EventAdapter(getActivity(),recyclerView);
+        mAdapter = new EventAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
@@ -126,8 +127,8 @@ public class TodayFragment extends Fragment {
             AddActivity.startActivityByUpdate(getActivity(),Constants.UPDATE,schedule);
         });
         recyclerView.notifyDataSetChanged();
-//        showDayEvent();
-        showEvent();
+        showDayEvent();
+//        showEvent();+
 
 
     }
@@ -170,7 +171,7 @@ public class TodayFragment extends Fragment {
                 .execute(new BaseResponseCallback<Event>() {
                     @Override
                     public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode() == 200){
+                        if(response.getCode() == 0){
                             showDeleteSuccess();
                         }else {
                             CommonUtils.showToast(response.getMsg());
@@ -202,8 +203,8 @@ public class TodayFragment extends Fragment {
      */
     private void showDeleteSuccess(){
         getActivity().runOnUiThread(()->{
+            EventBus.getDefault().post(new AddEvent());
             CommonUtils.showToast("删除日程成功");
-            EventBus.getDefault().post(new AddEvent()); //发送重新显示日程的信息
         });
 
     }
@@ -211,11 +212,11 @@ public class TodayFragment extends Fragment {
     /**
      * 测试
      */
-    private void showEvent() {
-        mEvent = mAdapter.getEvent();
-        mAdapter.notifyChanged(getActivity(), "待完成", mEvent);
-        recyclerView.notifyDataSetChanged();
-    }
+//    private void showEvent() {
+//        mEvent = mAdapter.getEvent();
+//        mAdapter.notifyChanged(getActivity(), "待完成", mEvent);
+//        recyclerView.notifyDataSetChanged();
+//    }
 
     public static TodayFragment newInstance() {
         return new TodayFragment();
