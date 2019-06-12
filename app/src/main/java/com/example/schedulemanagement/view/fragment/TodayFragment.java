@@ -13,6 +13,7 @@ import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
@@ -74,6 +75,11 @@ public class TodayFragment extends Fragment {
         super.onStop();
         EventBus.getDefault().unregister(this);
     }
+    //添加日程成功重新显示日程
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAddEvent(AddEvent event) {
+        showDayEvent();
+    }
 
     //删除日程
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -116,10 +122,9 @@ public class TodayFragment extends Fragment {
         recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
         recyclerView.setAdapter(mAdapter);
         //item点击效果
-        mAdapter.setOnClickListener(position -> {
-            AddActivity.startActivityByToday(getActivity(),Constants.UPDATE);
+        mAdapter.setOnClickListener((position,schedule) -> {
+            AddActivity.startActivityByUpdate(getActivity(),Constants.UPDATE,schedule);
         });
-
         recyclerView.notifyDataSetChanged();
 //        showDayEvent();
         showEvent();
@@ -198,7 +203,7 @@ public class TodayFragment extends Fragment {
     private void showDeleteSuccess(){
         getActivity().runOnUiThread(()->{
             CommonUtils.showToast("删除日程成功");
-            showDayEvent(); //网络获取日程
+            EventBus.getDefault().post(new AddEvent()); //发送重新显示日程的信息
         });
 
     }

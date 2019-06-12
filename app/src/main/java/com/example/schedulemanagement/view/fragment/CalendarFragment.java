@@ -10,26 +10,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
-import com.example.schedulemanagement.adapter.ArticleAdapter;
 import com.example.schedulemanagement.adapter.EventAdapter;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
-import com.example.schedulemanagement.entity.Article;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.event.AddEvent;
-import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.AddActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
-import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.haibin.calendarview.Calendar;
 import com.haibin.calendarview.CalendarLayout;
 import com.haibin.calendarview.CalendarView;
@@ -39,12 +33,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,7 +40,6 @@ import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
-import okhttp3.Response;
 
 /**
  * <pre>
@@ -127,15 +114,6 @@ public class CalendarFragment extends Fragment {
         showDayEvent();
     }
 
-    //删除日程
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDeleteEvent(DeleteEvent event) {
-        ConfirmDialog dialog = new ConfirmDialog(getActivity());
-        dialog.setOnClickListener(() -> {
-            delete(event.getId());
-        });
-        dialog.setText(deleteText).setTitle(deleteTitle).show();
-    }
 
     //更新日程
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -214,8 +192,8 @@ public class CalendarFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
         showEvent(mTitle);
         //子项跳转活动
-        mAdapter.setOnClickListener(position -> {
-            AddActivity.startActivityByToday(getActivity(), Constants.UPDATE);
+        mAdapter.setOnClickListener((position,schedule) -> {
+            AddActivity.startActivityByUpdate(getActivity(), Constants.UPDATE,schedule);
         });
         //    showDayEvent();
     }

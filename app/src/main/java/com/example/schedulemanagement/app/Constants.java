@@ -30,6 +30,7 @@ public static final String Params_ID="id";
     public static final String KEY_ADD_DATE_FORMAT="date_format";
     public static final String KEY_ADD_TYPE="type";
     public static final String KEY_USERNAME="username";
+    public static final String KEY_SCHEDULE="schedule";
 
     public static final int ADD = 0;
     public static final int UPDATE = 1;

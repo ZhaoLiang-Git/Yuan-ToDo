@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.entity.Schedule;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.widget.group.GroupRecyclerAdapter;
@@ -89,13 +90,20 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
             EventBus.getDefault().post(new UpdateStateEvent(item.getId(),checked));
         });
         //点击效果
-        eventViewHolder.mView.setOnClickListener(view -> listener.onClick(position));
-        eventViewHolder.mView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                EventBus.getDefault().post(new DeleteEvent(item.getId()));
-                return true;
-            }
+        eventViewHolder.mView.setOnClickListener(view -> {
+            Schedule schedule = new Schedule();
+            schedule.setId(item.getId());
+            schedule.setTitle(item.getTitle());
+            schedule.setContent(item.getContent());
+            schedule.setPriority(item.getPriority());
+            schedule.setS_date(item.getS_date());
+            schedule.setStatus(item.getStatus());
+            schedule.setS_starting(item.getS_starting());
+            listener.onClick(position,schedule);
+        });
+        eventViewHolder.mView.setOnLongClickListener(view -> {
+            EventBus.getDefault().post(new DeleteEvent(item.getId()));
+            return true;
         });
     }
 
@@ -175,6 +183,6 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     }
 
     public interface OnClickListener{
-        void onClick(int position);
+        void onClick(int position, Schedule schedule);
     }
 }

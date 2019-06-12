@@ -1,7 +1,9 @@
 package com.example.schedulemanagement.view.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +19,7 @@ import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.entity.Schedule;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
@@ -28,6 +31,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Calendar;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -80,7 +84,9 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             R.drawable.ic_priority_low};
 
     private int mType;
+    private int mId;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +144,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     /**
      * 点击事件
      */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void onClick() {
         //返回
         toolbar.setNavigationOnClickListener(view -> finish());
@@ -174,6 +181,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     /**
      * 初始化数据
      */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initData(){
         mType = getIntent().getIntExtra(Constants.KEY_ADD_TYPE,Constants.ADD);
         if(mType == Constants.UPDATE){
@@ -189,6 +197,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
         dateTv.setText(mDateText+"，"+ DateUtils.formatTime(hourOfDay)+"："+DateUtils.formatTime(minute));
@@ -235,6 +244,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         }
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN+"update")
+                .addParams(Constants.Params_ID,mId+"")
                 .addParams(Constants.Params_TITLE,mTitle)
                 .addParams(Constants.Params_CONTENT,mContent)
                 .addParams(Constants.Params_STATUS,mStatus)
@@ -253,29 +263,23 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                     }
                 });
     }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("SetTextI18n")
     public void show(){
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN + "show")
-                .addParams("s_date", DateUtils.getTodayDate())
-                .build()
-                .execute(new EventResponseCallback() {
-
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        CommonUtils.showToast("网络错误：" + e.toString());
-                        Log.d(TAG, "onError: " + e.toString());
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onResponse(BaseResponse<Event> response, int id) {
-                        if (response.getCode() == Constants.CODE_SUCCESS) {
-                            showSuccess(response.getData());
-                        } else {
-                            CommonUtils.showToast("显示日程失败，请重新操作");
-                        }
-                    }
-                });
+        Schedule schedule = (Schedule) getIntent().getSerializableExtra(Constants.KEY_SCHEDULE);
+        mId =schedule.getId();
+        mDateText = schedule.getS_date();
+        dateTv.setText(schedule.getS_date()+","+schedule.getS_starting());
+        if(schedule.getStatus().equals("done")){
+            statusCheckBox.setChecked(true);
+            dateTv.setTextColor(grayChecked);
+        }else {
+            statusCheckBox.setChecked(false);
+            dateTv.setTextColor(blueUnChecked);
+        }
+        priorityIv.setImageDrawable(getDrawable(priorityPic[Integer.valueOf(schedule.getPriority())-1]));
+        titleTv.setText(schedule.getTitle());
+        descriptionEdit.setText(schedule.getContent());
     }
 
     private void showAddSuccess(){
@@ -292,13 +296,6 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     }
 
     /**
-     * 显示日程
-     * @param event
-     */
-    private void showSuccess(Event event){
-
-    }
-    /**
      * 其他活动开启这个活动调用
      * @param activity 需跳转到这个活动的活动
      * @param date 日期
@@ -310,9 +307,10 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         activity.startActivity(intent);
     }
 
-    public static void startActivityByToday(Activity activity,int type) {
+    public static void startActivityByUpdate(Activity activity, int type, Schedule schedule) {
         Intent intent = new Intent(activity, AddActivity.class);
         intent.putExtra(Constants.KEY_ADD_TYPE,type);
+        intent.putExtra(Constants.KEY_SCHEDULE,schedule);
         activity.startActivity(intent);
     }
 }
