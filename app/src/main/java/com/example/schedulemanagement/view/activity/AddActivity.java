@@ -5,6 +5,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +29,8 @@ import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.github.glomadrian.grav.figures.Grav;
+
+
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -31,11 +38,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Calendar;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
+
+
 import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.BindView;
@@ -149,7 +153,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         //返回
         toolbar.setNavigationOnClickListener(view -> finish());
         //日期
-        eventCl.setOnClickListener(view -> timePickerDialog.show(getSupportFragmentManager(),"timePickerDialog"));
+        eventCl.setOnClickListener(view -> timePickerDialog.show(getFragmentManager(),"timePickerDialog"));
         //状态选择
         statusCheckBox.setOnClickListener(view -> {
             boolean checked = ((CheckBox)view).isChecked();

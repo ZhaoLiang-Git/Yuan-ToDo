@@ -2,6 +2,9 @@ package com.example.schedulemanagement.view.fragment;
 
 import android.app.Instrumentation;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,9 +23,7 @@ import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -105,9 +106,9 @@ public class RegisterFragment extends Fragment {
     private void register(String username, String password, String repeatPassword) {
         if(TextUtils.isEmpty(username)){
             CommonUtils.showToast(getActivity(),usernameEmpty);
-        }else if(TextUtils.isEmpty(password)){
-            CommonUtils.showToast(getActivity(),pswEmpty);
-        }else if (!password.equals(repeatPassword)) {
+        }else if(password.trim().length()< 6){
+            CommonUtils.showToast("密码不能少于6位");
+        } else if (!password.equals(repeatPassword)) {
             CommonUtils.showToast(getActivity(),repeatError);
         }else {
             OkHttpUtils.post()

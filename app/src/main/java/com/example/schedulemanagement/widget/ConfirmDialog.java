@@ -3,6 +3,7 @@ package com.example.schedulemanagement.widget;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,7 @@ import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
 
-import androidx.annotation.NonNull;
+
 
 
 /**

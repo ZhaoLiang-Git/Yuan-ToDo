@@ -2,6 +2,7 @@ package com.example.schedulemanagement.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import com.example.schedulemanagement.view.activity.LoginActivity;
 import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
-import androidx.fragment.app.Fragment;
+
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;

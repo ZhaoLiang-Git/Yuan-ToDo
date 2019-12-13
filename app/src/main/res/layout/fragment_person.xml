@@ -6,7 +6,7 @@
     xmlns:circleimageview="http://schemas.android.com/tools"
     android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_250">
 
@@ -37,12 +37,12 @@
             android:layout_marginTop="@dimen/dp_15"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_20"
-            android:text="周杰伦"
+            android:text="3117004905 袁健策"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/personHeadPic" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
     <RelativeLayout
         android:id="@+id/settingRelative"
         android:layout_width="match_parent"

@@ -2,6 +2,9 @@ package com.example.schedulemanagement.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +26,7 @@ import com.example.schedulemanagement.view.activity.LoginActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -72,7 +73,11 @@ public class LoginFragment extends Fragment {
         loginBtn.setOnRippleCompleteListener(rippleView ->
           login(usernameEdit.getText().toString(), passwordEdit.getText().toString()));
 //                startActivity(new Intent(getActivity(), MainActivity.class)));
-        registerBtn.setOnClickListener(view -> ((LoginActivity) getActivity()).toRegisterFragment());
+        registerBtn.setOnClickListener(view -> {
+            ((LoginActivity) getActivity()).toRegisterFragment();
+            usernameEdit.setText("");
+            passwordEdit.setText("");
+        });
 
     }
 
@@ -85,8 +90,8 @@ public class LoginFragment extends Fragment {
     private void login(String username, String password) {
         if(TextUtils.isEmpty(username)){
             CommonUtils.showToast(getActivity(),usernameEmpty);
-        }else if(TextUtils.isEmpty(password)){
-            CommonUtils.showToast(getActivity(),pswEmpty);
+        }else if(password.trim().length()< 6){
+            CommonUtils.showToast("密码不能少于6位");
         }else {
             OkHttpUtils.post()
                     .url(Constants.BASE_URL+"login")

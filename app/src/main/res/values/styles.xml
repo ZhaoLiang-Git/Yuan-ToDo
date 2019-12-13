@@ -14,6 +14,7 @@
         <item name="android:windowIsFloating">true</item>   <!-- 窗口浮动 -->
         <item name="android:windowContentOverlay">@null</item>  <!-- 没有阴影 -->
     </style>
+    
 
 
 </resources>

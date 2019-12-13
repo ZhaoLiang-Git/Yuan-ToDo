@@ -13,7 +13,7 @@
         >
 
     </FrameLayout>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/addFloatingBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
 
 
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

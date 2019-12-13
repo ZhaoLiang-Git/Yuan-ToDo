@@ -2,15 +2,18 @@ package com.example.schedulemanagement.view.activity;
 
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.utils.DateUtils;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
+
+
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -18,7 +21,7 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.view.fragment.CalendarFragment;
 import com.example.schedulemanagement.view.fragment.PersonFragment;
 import com.example.schedulemanagement.view.fragment.TodayFragment;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 
 import java.util.ArrayList;
 
