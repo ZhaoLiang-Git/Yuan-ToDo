@@ -22,6 +22,21 @@ public class Constants {
     public static final String Params_STATUS="status";
     public static final String Params_START="s_starting";
 
+    //IP地址
+    public static final String WIFI_IP = "192.168.43.136";
+    public static final String HOST_IP="192.168.69.2";
+    public static final String DB_IP="127.0.0.1";
+
+
+    //数据库
+    public static final String DB_NAME="scheduleManagement_袁健策_3117004905";
+
+    //table
+    public static final String TABLE_USER = "user_3117004905_袁健策";
+
+
+
+
 
 
     public static final int CODE_SUCCESS=0;

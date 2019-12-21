@@ -13,16 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.andexert.library.RippleView;
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
+import com.example.schedulemanagement.db.UserDao;
 import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
-
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -58,12 +59,14 @@ public class RegisterFragment extends Fragment {
     String usernameEmpty;
     @BindString(R.string.psw_empty)
     String pswEmpty;
+    private UserDao userDao;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
         ButterKnife.bind(this,view);
+        userDao = new UserDao();
         return view;
     }
 
@@ -111,29 +114,43 @@ public class RegisterFragment extends Fragment {
         } else if (!password.equals(repeatPassword)) {
             CommonUtils.showToast(getActivity(),repeatError);
         }else {
-            OkHttpUtils.post()
-                    .url(Constants.BASE_URL+"register")
-                    .addParams("registerName",username)
-                    .addParams("registerPwd",password)
-                    .build()
-                    .execute(new BaseResponseCallback<LoginAndRegister>() {
-                        @Override
-                        public void onError(Call call, Exception e, int id) {
-                            CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
-                            Log.d(TAG, "onError: "+e.toString());
-                            e.printStackTrace();
-                        }
-
-                        @Override
-                        public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
-                            if(response.getCode()==Constants.CODE_SUCCESS){
-                                registerSuccess(response.getMsg());
-                            }else {
-                                registerFail(response.getMsg());
-                            }
-                        }
-                    });
+            //executeByOkHttp(username, password);
+            new Thread(()->{
+                String msg = userDao.register(username,password);
+                if(msg.equals("success")){
+                    registerSuccess("注册成功");
+                }else {
+                    registerFail(msg);
+                }
+            }).start();
         }
+    }
+
+
+    //API方式
+    private void executeByOkHttp(String username, String password) {
+        OkHttpUtils.post()
+                .url(Constants.BASE_URL+"register")
+                .addParams("registerName",username)
+                .addParams("registerPwd",password)
+                .build()
+                .execute(new BaseResponseCallback<LoginAndRegister>() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
+                        Log.d(TAG, "onError: "+e.toString());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
+                        if(response.getCode()==Constants.CODE_SUCCESS){
+                            registerSuccess(response.getMsg());
+                        }else {
+                            registerFail(response.getMsg());
+                        }
+                    }
+                });
     }
 
 
@@ -152,7 +169,9 @@ public class RegisterFragment extends Fragment {
      * 注册失败
      */
     private void registerFail(String msg) {
-        CommonUtils.showToast(getActivity(),msg);
+        getActivity().runOnUiThread(()->{
+            Toast.makeText(getActivity(),msg,Toast.LENGTH_SHORT).show();
+        });
     }
 
     /**
@@ -163,4 +182,5 @@ public class RegisterFragment extends Fragment {
     public static Fragment newInstance() {
         return new RegisterFragment();
     }
+
 }

@@ -1,8 +1,6 @@
 package com.example.schedulemanagement.view.activity;
 
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,9 +21,9 @@ public class LeadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lead);
-//        toLoginActivity();
+        toLoginActivity();
 //        ck();
-      toMainActivity("袁健策3117004905");
+//      toMainActivity("袁健策3117004905");
     }
     private void ck(){
         OkHttpUtils.post()

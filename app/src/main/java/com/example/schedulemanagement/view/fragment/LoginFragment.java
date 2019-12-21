@@ -5,32 +5,22 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.andexert.library.RippleView;
 import com.example.schedulemanagement.R;
-import com.example.schedulemanagement.app.Constants;
-import com.example.schedulemanagement.base.entity.BaseResponse;
-import com.example.schedulemanagement.callback.BaseResponseCallback;
-import com.example.schedulemanagement.callback.LoginAndRegisterCallback;
-import com.example.schedulemanagement.entity.LoginAndRegister;
+import com.example.schedulemanagement.db.UserDao;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.view.activity.LoginActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
-import com.zhy.http.okhttp.OkHttpUtils;
-
 
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
 
 /**
  * <pre>
@@ -57,6 +47,7 @@ public class LoginFragment extends Fragment {
     @BindString(R.string.psw_empty)
     String pswEmpty;
     private static final String TAG = "LoginFragment";
+    private UserDao userDao;
 
 
     @Nullable
@@ -64,6 +55,7 @@ public class LoginFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this,view);
+        userDao = new UserDao();
         return view;
     }
 
@@ -87,37 +79,47 @@ public class LoginFragment extends Fragment {
      * @param username 用户名
      * @param password 密码
      */
-    private void login(String username, String password) {
-        if(TextUtils.isEmpty(username)){
-            CommonUtils.showToast(getActivity(),usernameEmpty);
-        }else if(password.trim().length()< 6){
-            CommonUtils.showToast("密码不能少于6位");
-        }else {
-            OkHttpUtils.post()
-                    .url(Constants.BASE_URL+"login")
-                    .addParams("uname", username) //用户名
-                    .addParams("pwd", password) //密码
-                    .build()
-                    .execute(new LoginAndRegisterCallback() { //回调
-                        @Override
-                        public void onError(Call call, Exception e, int id) {
-                            CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
-                            e.printStackTrace();
-                            loginFail(e.toString());
-                        }
+//    private void login(String username, String password) {
+//        if(TextUtils.isEmpty(username)){
+//            CommonUtils.showToast(getActivity(),usernameEmpty);
+//        }else if(password.trim().length()< 6){
+//            CommonUtils.showToast("密码不能少于6位");
+//        }else {
+//            OkHttpUtils.post()
+//                    .url(Constants.BASE_URL+"login")
+//                    .addParams("uname", username) //用户名
+//                    .addParams("pwd", password) //密码
+//                    .build()
+//                    .execute(new LoginAndRegisterCallback() { //回调
+//                        @Override
+//                        public void onError(Call call, Exception e, int id) {
+//                            CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
+//                            e.printStackTrace();
+//                            loginFail(e.toString());
+//                        }
+//
+//                        @Override
+//                        public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
+//                            if (response.getCode() == Constants.CODE_SUCCESS) {
+//                                loginSuccess(response.getData().getUname());
+//                            } else {
+//                                loginFail(response.getMsg());
+//                            }
+//
+//                        }
+//                    });
+//        }
+//
+//    }
 
-                        @Override
-                        public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
-                            if (response.getCode() == Constants.CODE_SUCCESS) {
-                                loginSuccess(response.getData().getUname());
-                            } else {
-                                loginFail(response.getMsg());
-                            }
-
-                        }
-                    });
-        }
-
+    private void login(String username,String password){
+        new Thread(()->{
+            if(userDao.login(username,password)){
+                loginSuccess(username);
+            }else {
+                loginFail("登录失败");
+            }
+        }).start();
     }
 
     /**
@@ -135,7 +137,7 @@ public class LoginFragment extends Fragment {
      * 登录失败
      */
     private void loginFail(String message) {
-        CommonUtils.showToast(getActivity(),message);
+        getActivity().runOnUiThread(()->CommonUtils.showToast(getActivity(),message));
     }
 
     /**

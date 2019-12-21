@@ -19,7 +19,6 @@ import com.example.schedulemanagement.view.activity.LoginActivity;
 import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
-
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;

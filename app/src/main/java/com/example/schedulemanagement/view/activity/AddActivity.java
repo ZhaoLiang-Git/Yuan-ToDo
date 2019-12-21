@@ -10,7 +10,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
@@ -22,15 +21,11 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
-import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.Schedule;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
-import com.github.glomadrian.grav.figures.Grav;
-
-
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -38,13 +33,10 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Calendar;
 
-
-
 import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
 
 public class AddActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 

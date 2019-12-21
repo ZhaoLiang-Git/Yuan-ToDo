@@ -3,7 +3,6 @@ package com.example.schedulemanagement.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -15,7 +14,6 @@ import com.example.schedulemanagement.entity.Schedule;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.widget.group.GroupRecyclerAdapter;
-import com.example.schedulemanagement.widget.group.GroupRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
 

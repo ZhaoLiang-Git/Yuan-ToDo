@@ -3,12 +3,10 @@ package com.example.schedulemanagement.callback;
 import android.util.Log;
 
 import com.example.schedulemanagement.base.entity.BaseResponse;
-import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zhy.http.okhttp.callback.Callback;
-
 
 import java.lang.reflect.Type;
 

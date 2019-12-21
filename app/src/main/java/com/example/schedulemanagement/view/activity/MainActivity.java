@@ -1,10 +1,5 @@
 package com.example.schedulemanagement.view.activity;
 
-import com.example.schedulemanagement.app.Constants;
-import com.example.schedulemanagement.utils.DateUtils;
-
-
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -18,10 +13,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
+import com.example.schedulemanagement.app.Constants;
+import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.fragment.CalendarFragment;
 import com.example.schedulemanagement.view.fragment.PersonFragment;
 import com.example.schedulemanagement.view.fragment.TodayFragment;
-
 
 import java.util.ArrayList;
 

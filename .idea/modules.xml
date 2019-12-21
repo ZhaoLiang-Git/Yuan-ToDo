@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/schedulemanagement.iml" filepath="$PROJECT_DIR$/schedulemanagement.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqljdbc/schedulemanagement-sqljdbc.iml" filepath="$PROJECT_DIR$/sqljdbc/schedulemanagement-sqljdbc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqljdbc/sqljdbc.iml" filepath="$PROJECT_DIR$/sqljdbc/sqljdbc.iml" />
     </modules>
   </component>
 </project>

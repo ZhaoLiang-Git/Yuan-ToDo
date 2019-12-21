@@ -1,7 +1,6 @@
 package com.example.schedulemanagement.callback;
 
 import com.example.schedulemanagement.base.entity.BaseResponse;
-import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

@@ -8,7 +8,6 @@ import com.zhy.http.okhttp.callback.Callback;
 
 import java.lang.reflect.Type;
 
-import okhttp3.Call;
 import okhttp3.Response;
 
 /**

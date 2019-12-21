@@ -31,8 +31,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-
-
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;

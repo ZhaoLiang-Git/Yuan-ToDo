@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
-
 import android.support.annotation.FloatRange;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
