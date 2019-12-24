@@ -66,4 +66,9 @@ public class DateUtils {
         String[] dates = date.split("-");
         return dates[1]+"月"+dates[2]+"日";
     }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String date2String(Date date){
+        return new SimpleDateFormat().format(date);
+    }
 }

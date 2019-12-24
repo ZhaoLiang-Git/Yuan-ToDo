@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +14,20 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.schedulemanagement.R;
+import com.example.schedulemanagement.app.Constants;
+import com.example.schedulemanagement.base.entity.BaseResponse;
+import com.example.schedulemanagement.callback.LoginAndRegisterCallback;
 import com.example.schedulemanagement.db.UserDao;
+import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.view.activity.LoginActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
+import com.zhy.http.okhttp.OkHttpUtils;
 
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Call;
 
 /**
  * <pre>
@@ -79,39 +86,6 @@ public class LoginFragment extends Fragment {
      * @param username 用户名
      * @param password 密码
      */
-//    private void login(String username, String password) {
-//        if(TextUtils.isEmpty(username)){
-//            CommonUtils.showToast(getActivity(),usernameEmpty);
-//        }else if(password.trim().length()< 6){
-//            CommonUtils.showToast("密码不能少于6位");
-//        }else {
-//            OkHttpUtils.post()
-//                    .url(Constants.BASE_URL+"login")
-//                    .addParams("uname", username) //用户名
-//                    .addParams("pwd", password) //密码
-//                    .build()
-//                    .execute(new LoginAndRegisterCallback() { //回调
-//                        @Override
-//                        public void onError(Call call, Exception e, int id) {
-//                            CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
-//                            e.printStackTrace();
-//                            loginFail(e.toString());
-//                        }
-//
-//                        @Override
-//                        public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
-//                            if (response.getCode() == Constants.CODE_SUCCESS) {
-//                                loginSuccess(response.getData().getUname());
-//                            } else {
-//                                loginFail(response.getMsg());
-//                            }
-//
-//                        }
-//                    });
-//        }
-//
-//    }
-
     private void login(String username,String password){
         new Thread(()->{
             if(userDao.login(username,password)){
@@ -121,6 +95,43 @@ public class LoginFragment extends Fragment {
             }
         }).start();
     }
+
+
+    //API登录
+    private void loginByHttp(String username, String password) {
+        if(TextUtils.isEmpty(username)){
+            CommonUtils.showToast(getActivity(),usernameEmpty);
+        }else if(password.trim().length()< 6){
+            CommonUtils.showToast("密码不能少于6位");
+        }else {
+            OkHttpUtils.post()
+                    .url(Constants.BASE_URL+"login")
+                    .addParams("uname", username) //用户名
+                    .addParams("pwd", password) //密码
+                    .build()
+                    .execute(new LoginAndRegisterCallback() { //回调
+                        @Override
+                        public void onError(Call call, Exception e, int id) {
+                            CommonUtils.showToast(getActivity(),"网络错误："+e.toString());
+                            e.printStackTrace();
+                            loginFail(e.toString());
+                        }
+
+                        @Override
+                        public void onResponse(BaseResponse<LoginAndRegister> response, int id) {
+                            if (response.getCode() == Constants.CODE_SUCCESS) {
+                                loginSuccess(response.getData().getUname());
+                            } else {
+                                loginFail(response.getMsg());
+                            }
+
+                        }
+                    });
+        }
+
+    }
+
+
 
     /**
      * 登录成功

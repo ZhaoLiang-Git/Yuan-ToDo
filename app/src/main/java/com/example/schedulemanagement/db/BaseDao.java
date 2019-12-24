@@ -13,17 +13,12 @@ import static com.example.schedulemanagement.app.Constants.HOST_IP;
  * <pre>
  *     author : 残渊
  *     time   : 2019/12/20
- *     desc   :
+ *     desc   : 数据库连接
  * </pre>
  */
 
 public class BaseDao {
 
-    /***
-     *
-     * @author 数据库连接类
-     *
-     */
     protected Connection conn = null;
 
     /***
