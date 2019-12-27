@@ -117,7 +117,7 @@ public class RegisterFragment extends Fragment {
             //executeByOkHttp(username, password);
             new Thread(()->{
                 String msg = userDao.register(username,password);
-                if(msg.equals("success")){
+                if(msg.equals("showSuccess")){
                     registerSuccess("注册成功");
                 }else {
                     registerFail(msg);

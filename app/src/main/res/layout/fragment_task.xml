@@ -13,11 +13,12 @@
         >
 
         <TextView
+            android:id="@+id/titleTv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textSize="@dimen/sp_16"
             android:textColor="@color/white"
-            android:text="@string/today_event"
+            android:text="@string/all_event"
             android:layout_gravity="center"
             android:gravity="center"
           />

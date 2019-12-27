@@ -18,7 +18,9 @@ import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
+import com.example.schedulemanagement.db.TaskDao;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
@@ -78,6 +80,7 @@ public class CalendarFragment extends Fragment {
     private Event mEvent = new Event();
     private String mTitle = "今天";
     private String mDateFormat;
+    private TaskDao taskDao;
 
 
     @Override
@@ -86,6 +89,7 @@ public class CalendarFragment extends Fragment {
         EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
         ButterKnife.bind(this, view);
+        taskDao = new TaskDao();
         return view;
     }
 
@@ -108,35 +112,45 @@ public class CalendarFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAddEvent(AddEvent event) {
         showDayEvent();
-        Log.d(TAG, "onAddEvent: "+mDateFormat);
     }
 
 
-    //更新日程
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    //在子线程更新日程
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onUpdateEvent(UpdateStateEvent event) {
-        String status = event.isChecked()?"done":"undone";
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN+"update")
-                .addParams(Constants.Params_STATUS,status)
-                .addParams(Constants.Params_ID,event.getEventBean().getId()+"")
-                .addParams(Constants.Params_TITLE,event.getEventBean().getTitle())
-                .addParams(Constants.Params_CONTENT,event.getEventBean().getContent())
-                .addParams(Constants.Params_START,event.getEventBean().getS_starting())
-                .addParams(Constants.Params_DATE,event.getEventBean().getS_date())
-                .addParams(Constants.Params_PRIORITY,event.getEventBean().getPriority())
-                .build()
-                .execute(new BaseResponseCallback<Event>() {
-                    @Override
-                    public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode() == Constants.CODE_SUCCESS){
-                            showDayEvent();
-                        }else {
-                            CommonUtils.showToast("修改日程失败");
-                        }
-                    }
-                });
+        if(taskDao.update(event.getEventBean())!=0){
+            showDayEvent();
+        }else {
+            showFail("更新失败");
+        }
     }
+
+
+
+//    //http的更新方法
+//    private void updateByHttp(UpdateStateEvent event) {
+//        String status = event.isChecked()?"done":"undone";
+//        OkHttpUtils.post()
+//                .url(Constants.BASE_URL_MAIN+"update")
+//                .addParams(Constants.Params_STATUS,status)
+//                .addParams(Constants.Params_ID,event.getEventBean().getId()+"")
+//                .addParams(Constants.Params_TITLE,event.getEventBean().getTitle())
+//                .addParams(Constants.Params_CONTENT,event.getEventBean().getContent())
+//                .addParams(Constants.Params_START,event.getEventBean().getS_starting())
+//                .addParams(Constants.Params_DATE,event.getEventBean().getS_date())
+//                .addParams(Constants.Params_PRIORITY,event.getEventBean().getPriority())
+//                .build()
+//                .execute(new BaseResponseCallback<Event>() {
+//                    @Override
+//                    public void onResponse(BaseResponse response, int id) {
+//                        if(response.getCode() == Constants.CODE_SUCCESS){
+//                            showDayEvent();
+//                        }else {
+//                            CommonUtils.showToast("修改日程失败");
+//                        }
+//                    }
+//                });
+//    }
 
 
     @SuppressLint("SetTextI18n")
@@ -171,7 +185,6 @@ public class CalendarFragment extends Fragment {
                 ((MainActivity) getActivity()).setDateText(
                         monthDay,
                         DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay()));
-//                showEvent(monthDay);
                 //查询日程
                 mTitle = monthDay;
                 mDateFormat = DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay());
@@ -191,12 +204,11 @@ public class CalendarFragment extends Fragment {
     private void initRecyclerView() {
         mAdapter = new EventAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
+        recyclerView.addItemDecoration(new GroupItemDecoration<String, Task>());
         recyclerView.setAdapter(mAdapter);
-     //   showEvent(mTitle);
         //子项跳转活动
-        mAdapter.setOnClickListener((position,schedule) -> {
-            AddActivity.startActivityByUpdate(getActivity(), Constants.UPDATE,schedule);
+        mAdapter.setOnClickListener((position,taskId) -> {
+            AddActivity.startActivityByUpdate(getActivity(),taskId);
         });
         showDayEvent();
     }
@@ -216,7 +228,7 @@ public class CalendarFragment extends Fragment {
     /**
      * 网络获取日程
      */
-    private void showDayEvent() {
+    private void showDayEventByHttp() {
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN + "show")
                 .addParams("s_date", mDateFormat)
@@ -241,6 +253,16 @@ public class CalendarFragment extends Fragment {
                 });
     }
 
+    //获取数据库任务表
+    private void showDayEvent(){
+        new Thread(()->{
+            Event event = taskDao.queryTaskByDate(mDateFormat);
+            if(event != null){
+                showSuccess(mTitle,event);
+            }
+        }).start();
+    }
+
     /**
      * 查询日程成功
      *
@@ -261,26 +283,4 @@ public class CalendarFragment extends Fragment {
         CommonUtils.showToast(getActivity(), msg);
     }
 
-    /**
-     * 删除日程成功
-     */
-    private void showDeleteSuccess() {
-        getActivity().runOnUiThread(() -> {
-            CommonUtils.showToast("删除日程成功");
-            showDayEvent(); //网络获取日程
-        });
-    }
-    /**
-     * 测试
-     */
-//    private void showEvent(String title) {
-//        if (title.equals("今天")) {
-//            mEvent = mAdapter.getEvent();
-//            Log.d(TAG, "showEvent: " + title);
-//        } else {
-//            mEvent = mAdapter.getEvent();
-//        }
-//        mAdapter.notifyChanged(getActivity(), title, mEvent);
-//        recyclerView.notifyDataSetChanged();
-//    }
 }

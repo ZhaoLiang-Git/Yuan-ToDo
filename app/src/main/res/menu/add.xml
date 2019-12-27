@@ -2,6 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/menu_category"
+        android:title="category"
+        android:icon="@drawable/add_category"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/menu_tag"
+        android:title="tag"
+        android:icon="@drawable/add_tag"
+        app:showAsAction="always"
+        />
+    <item
         android:id="@+id/menu_add"
         android:title="add"
         android:icon="@drawable/ic_add"

@@ -71,7 +71,7 @@ public class LoginFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         loginBtn.setOnRippleCompleteListener(rippleView ->
           login(usernameEdit.getText().toString(), passwordEdit.getText().toString()));
-//                startActivity(new Intent(getActivity(), MainActivity.class)));
+//                startActivityByAdd(new Intent(getActivity(), MainActivity.class)));
         registerBtn.setOnClickListener(view -> {
             ((LoginActivity) getActivity()).toRegisterFragment();
             usernameEdit.setText("");

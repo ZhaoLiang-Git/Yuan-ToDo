@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.schedulemanagement">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <application
         android:name=".app.App"
         android:allowBackup="true"
@@ -19,6 +15,8 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:node="replace"
         tools:targetApi="m">
+        <activity android:name=".view.activity.TaskActivity"></activity>
+        <activity android:name=".view.activity.TypeActivity" />
         <activity android:name=".view.activity.LeadActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +26,11 @@
         </activity>
         <activity android:name=".view.activity.AddActivity" />
         <activity android:name=".view.activity.MainActivity" />
-        <activity android:name=".view.activity.LoginActivity"/>
+        <activity android:name=".view.activity.LoginActivity" />
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

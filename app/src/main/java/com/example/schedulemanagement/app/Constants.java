@@ -44,11 +44,14 @@ public class Constants {
 
     public static final String KEY_ADD_DATE="date";
     public static final String KEY_ADD_DATE_FORMAT="date_format";
-    public static final String KEY_ADD_TYPE="type";
-    public static final String KEY_USERNAME="username";
+    public static final String KEY_ID ="id";
+    public static final String KEY_NAME ="name";
     public static final String KEY_SCHEDULE="schedule";
+    public static final String KEY_TASK="task";
+    public static final String KEY_TYPE="type";
 
-    public static final int ADD = 0;
-    public static final int UPDATE = 1;
+    public static final int ADD = -1;
+    public static final int TYPE_CATEGORY=0;
+    public static final int TYPE_TAG=1;
 
 }

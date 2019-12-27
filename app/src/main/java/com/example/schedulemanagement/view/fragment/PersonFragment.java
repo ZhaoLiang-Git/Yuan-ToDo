@@ -6,16 +6,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
-import com.example.schedulemanagement.app.App;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
 import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.view.activity.LoginActivity;
+import com.example.schedulemanagement.view.activity.TypeActivity;
 import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -41,6 +42,10 @@ public class PersonFragment extends Fragment {
     String dialogTitle;
     @BindView(R.id.personUsernameTv)
     TextView personUsernameTv;
+    @BindView(R.id.categoryRelative)
+    RelativeLayout categoryRelative;
+    @BindView(R.id.tagRelative)
+    RelativeLayout tagRelative;
 
 
     @Override
@@ -50,7 +55,7 @@ public class PersonFragment extends Fragment {
         ButterKnife.bind(this, view);
         Bundle bundle = getArguments();
         if(bundle!=null){
-            personUsernameTv.setText(bundle.getString(Constants.KEY_USERNAME));
+            personUsernameTv.setText(bundle.getString(Constants.KEY_NAME));
         }
         return view;
     }
@@ -64,6 +69,8 @@ public class PersonFragment extends Fragment {
     public void onClick() {
         //退出登录点击效果
         personLogout.setOnClickListener(view -> showLogoutDialog());
+        categoryRelative.setOnClickListener(view -> TypeActivity.toTypeActivity(getActivity(),Constants.TYPE_CATEGORY));
+        tagRelative.setOnClickListener(view -> TypeActivity.toTypeActivity(getActivity(),Constants.TYPE_TAG));
     }
 
 
@@ -76,10 +83,15 @@ public class PersonFragment extends Fragment {
         dialog.setText(dialogText).setTitle(dialogTitle).show();
     }
 
+    //退出登录
+    private void logout(){
+        toLoginActivity();
+    }
+
     /**
      * 请求退出登录的操作
      */
-    private void logout() {
+    private void logoutByHttp() {
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN + "exit")
                 .build()
@@ -106,7 +118,8 @@ public class PersonFragment extends Fragment {
      * 登录成功，返回到登录界面
      */
     public void toLoginActivity() {
-        App.getCookieStore().removeAll();//清空cookie
+        //App.getCookieStore().removeAll();//清空cookie
+        getActivity().finish();
         startActivity(new Intent(getActivity(), LoginActivity.class));
     }
 
@@ -118,7 +131,7 @@ public class PersonFragment extends Fragment {
     public static PersonFragment newInstance(String username) {
         PersonFragment personFragment = new PersonFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(Constants.KEY_USERNAME,username);
+        bundle.putString(Constants.KEY_NAME,username);
         personFragment.setArguments(bundle);
         return personFragment;
     }

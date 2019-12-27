@@ -44,7 +44,7 @@
 
     </android.support.constraint.ConstraintLayout>
     <RelativeLayout
-        android:id="@+id/settingRelative"
+        android:id="@+id/categoryRelative"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_2"
@@ -59,7 +59,7 @@
             android:layout_height="@dimen/dp_30"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_20"
-            android:src="@drawable/ic_person_setting" />
+            android:src="@drawable/category" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_20"
             android:layout_toRightOf="@+id/personSettingIv"
-            android:text="@string/person_setting"
+            android:text="@string/person_category"
             android:textColor="@color/black"
             android:textSize="@dimen/sp_16"/>
 
@@ -79,7 +79,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/aboutUsRelative"
+        android:id="@+id/tagRelative"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_2"
@@ -94,7 +94,7 @@
             android:layout_height="@dimen/dp_30"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_20"
-            android:src="@drawable/ic_person_about" />
+            android:src="@drawable/tag" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -104,7 +104,7 @@
             android:layout_toRightOf="@+id/personAboutIv"
             android:textColor="@color/black"
             android:textSize="@dimen/sp_16"
-            android:text="@string/person_about" />
+            android:text="@string/person_tag" />
 
         <ImageView
             android:layout_width="@dimen/dp_40"

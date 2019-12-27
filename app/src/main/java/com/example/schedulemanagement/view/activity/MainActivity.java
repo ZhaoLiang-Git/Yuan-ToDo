@@ -17,7 +17,7 @@ import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.fragment.CalendarFragment;
 import com.example.schedulemanagement.view.fragment.PersonFragment;
-import com.example.schedulemanagement.view.fragment.TodayFragment;
+import com.example.schedulemanagement.view.fragment.TaskFragment;
 
 import java.util.ArrayList;
 
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mUsername = getIntent().getStringExtra(Constants.KEY_USERNAME);
+        mUsername = getIntent().getStringExtra(Constants.KEY_NAME);
         initView();
         initFragment();
     }
@@ -71,12 +71,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //添加日程
-        addFloatingBtn.setOnClickListener(view -> AddActivity.startActivity(this,mDateText,mDateFormat));
+        addFloatingBtn.setOnClickListener(view -> AddActivity.startActivityByAdd(this,mDateText,mDateFormat));
     }
 
     private void initFragment() {
         mFragments.add(CalendarFragment.newInstance());
-        mFragments.add(TodayFragment.newInstance());
+        mFragments.add(TaskFragment.newInstance());
         mFragments.add(PersonFragment.newInstance(mUsername));
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         for (int i = 0; i < mFragments.size(); i++) {
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public static void startActivity(Activity activity,String username){
         Intent intent = new Intent(activity,MainActivity.class);
-        intent.putExtra(Constants.KEY_USERNAME,username);
+        intent.putExtra(Constants.KEY_NAME,username);
         activity.startActivity(intent);
     }
 

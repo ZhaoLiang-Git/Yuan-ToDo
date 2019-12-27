@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
@@ -12,25 +13,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.app.Constants;
-import com.example.schedulemanagement.base.entity.BaseResponse;
-import com.example.schedulemanagement.callback.BaseResponseCallback;
-import com.example.schedulemanagement.entity.Event;
-import com.example.schedulemanagement.entity.Schedule;
+import com.example.schedulemanagement.db.TaskDao;
+import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
-import com.zhy.http.okhttp.OkHttpUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import butterknife.BindColor;
@@ -72,15 +74,16 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private String mTitle;
     private String mContent;
     private String mStartTime;
-    private String mStatus = "undone";
+    private boolean mState;
     private int mNowHour;
     private int mNowMinute;
-    private int mPriority = 3;
-    private int[] priorityPic ={R.drawable.ic_priority_high,R.drawable.ic_priority_medium,
-            R.drawable.ic_priority_low};
+    private int mPriority = 0;
+    private int[] priorityPic ={R.drawable.ic_priority_low,R.drawable.ic_priority_medium,
+            R.drawable.ic_priority_high};
 
-    private int mType;
+    private int mTaskId;
     private int mId;
+    private TaskDao taskDao;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -88,6 +91,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
         ButterKnife.bind(this);
+        taskDao = new TaskDao();
         initData();
         initView();
         initTimeDialog();
@@ -105,14 +109,47 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_add:
-                if(mType == Constants.ADD){
+                if(mTaskId == Constants.ADD){
                     add();
                 }else {
                     update();
                 }
                 break;
+            case R.id.menu_category:
+                selectCategory();
         }
         return true;
+    }
+
+    //选择分类
+    private void selectCategory(){
+        ArrayList<String> itemList = new ArrayList<>();
+        itemList.add("数据库");
+        itemList.add("操作系统");
+        itemList.add("软件项目管理");
+        new MaterialDialog.Builder(this)
+                .items(itemList)
+                .itemsCallbackSingleChoice(1, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                        return true;
+                    }
+                })
+                .positiveText("确定")
+                .negativeText("新建")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                    }
+                })
+                .show();
     }
 
 
@@ -148,12 +185,10 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         eventCl.setOnClickListener(view -> timePickerDialog.show(getFragmentManager(),"timePickerDialog"));
         //状态选择
         statusCheckBox.setOnClickListener(view -> {
-            boolean checked = ((CheckBox)view).isChecked();
-            if(checked){
-                mStatus = "done";
+            mState = ((CheckBox)view).isChecked();
+            if(mState){
                 dateTv.setTextColor(grayChecked);
             }else {
-                mStatus = "undone";
                 dateTv.setTextColor(blueUnChecked);
             }
         });
@@ -162,12 +197,12 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             AlertDialog dialog = new AlertDialog
                     .Builder(this)
                     .setSingleChoiceItems(
-                            new String[]{"高", "中", "低"},
-                            mPriority-1,
+                            new String[]{"低", "中", "高"},
+                            mPriority,
                             (dialog1, which)
                             -> {
                                 priorityIv.setImageDrawable(getDrawable(priorityPic[which]));
-                                mPriority = which+1;
+                                mPriority = which;
                                 dialog1.cancel();
                             }).create();
             dialog.show();
@@ -181,17 +216,17 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initData(){
-        mType = getIntent().getIntExtra(Constants.KEY_ADD_TYPE,Constants.ADD);
-        if(mType == Constants.UPDATE){
-            show();
-        }else {
+        mTaskId = getIntent().getIntExtra(Constants.KEY_ID,Constants.ADD);
+        if(mTaskId == Constants.ADD){//添加数据
             mDateText = getIntent().getStringExtra(Constants.KEY_ADD_DATE);
             mDateFormat = getIntent().getStringExtra(Constants.KEY_ADD_DATE_FORMAT);
             Calendar calendar = Calendar.getInstance();
             mNowHour = calendar.get(Calendar.HOUR_OF_DAY);
             mNowMinute = calendar.get(Calendar.MINUTE);
-            mStartTime = DateUtils.formatTime(mNowHour) +":" +DateUtils.formatTime(mNowMinute) +":00";
+            mStartTime = DateUtils.formatTime(mNowHour) +":" +DateUtils.formatTime(mNowMinute) ;
             dateTv.setText(mDateText+"，"+DateUtils.formatTime(mNowHour)+"："+DateUtils.formatTime(mNowMinute));
+        }else {//修改数据
+            show();
         }
     }
 
@@ -199,7 +234,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
         dateTv.setText(mDateText+"，"+ DateUtils.formatTime(hourOfDay)+"："+DateUtils.formatTime(minute));
-        mStartTime = DateUtils.formatTime(hourOfDay) +":" +DateUtils.formatTime(minute) +":00";
+        mStartTime = DateUtils.formatTime(hourOfDay) +":" +DateUtils.formatTime(minute);
     }
 
     /**
@@ -211,25 +246,20 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         if(mTitle.equals("")){
             CommonUtils.showToast("事件不能为空");
         }else {
-            OkHttpUtils.post()
-                    .url(Constants.BASE_URL_MAIN+"add")
-                    .addParams(Constants.Params_TITLE,mTitle)
-                    .addParams(Constants.Params_CONTENT,mContent)
-                    .addParams(Constants.Params_STATUS,mStatus)
-                    .addParams(Constants.Params_START,mStartTime)
-                    .addParams(Constants.Params_DATE,mDateFormat)
-                    .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
-                    .build()
-                    .execute(new BaseResponseCallback<Event>() {
-                        @Override
-                        public void onResponse(BaseResponse response, int id) {
-                            if(response.getCode()==0){
-                                showAddSuccess();
-                            } else {
-                                CommonUtils.showToast("添加日程失败，请重新添加");
-                            }
-                        }
-                    });
+            new Thread(()->{
+                Task task = new Task();
+                task.setTitle(mTitle);
+                task.setContent(mContent);
+                task.setState(mState);
+                task.setStartTime(mStartTime);
+                task.setDate(mDateFormat);
+                task.setPriority(mPriority);
+                if(taskDao.insert(task)!= 0) {
+                    showAddSuccess();
+                }else {
+                    showToast("添加失败");
+                }
+            }).start();
         }
     }
 
@@ -240,56 +270,42 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         if(mTitle.equals("")){
             CommonUtils.showToast("事件不能为空");
         }else {
-            OkHttpUtils.post()
-                    .url(Constants.BASE_URL_MAIN+"update")
-                    .addParams(Constants.Params_ID,mId+"")
-                    .addParams(Constants.Params_TITLE,mTitle)
-                    .addParams(Constants.Params_CONTENT,mContent)
-                    .addParams(Constants.Params_STATUS,mStatus)
-                    .addParams(Constants.Params_START,mStartTime)
-                    .addParams(Constants.Params_DATE,mDateFormat)
-                    .addParams(Constants.Params_PRIORITY,String.valueOf(mPriority))
-                    .build()
-                    .execute(new BaseResponseCallback<Event>() {
-                        @Override
-                        public void onResponse(BaseResponse response, int id) {
-                            if(response.getCode()==0){
-                                showAddSuccess();
-                            } else {
-                                CommonUtils.showToast("修改日程失败，请重新修改");
-                            }
-                        }
-                    });
+            new Thread(()->{
+                Task task = new Task();
+                task.setTaskId(mId);
+                task.setTitle(mTitle);
+                task.setContent(mContent);
+                task.setState(mState);
+                task.setStartTime(mStartTime);
+                task.setDate(mDateFormat);
+                task.setPriority(mPriority);
+                if(taskDao.update(task) != 0){
+                    showAddSuccess();
+                }else {
+                    showToast("修改失败");
+                }
+            }).start();
         }
 
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
     public void show(){
-        Schedule schedule = (Schedule) getIntent().getSerializableExtra(Constants.KEY_SCHEDULE);
-        mId =schedule.getId();
-        mStartTime =schedule.getS_starting();
-        mStatus = schedule.getStatus();
-        mDateFormat = schedule.getS_date();
-        mDateText = DateUtils.dateFormat(schedule.getS_date());
-        dateTv.setText(DateUtils.dateFormat(schedule.getS_date())+"，"+DateUtils.timeFormat(schedule.getS_starting()));
-        if(schedule.getStatus().equals("done")){
-            statusCheckBox.setChecked(true);
-            dateTv.setTextColor(grayChecked);
-        }else {
-            statusCheckBox.setChecked(false);
-            dateTv.setTextColor(blueUnChecked);
-        }
-        priorityIv.setImageDrawable(getDrawable(priorityPic[Integer.valueOf(schedule.getPriority())-1]));
-        titleTv.setText(schedule.getTitle());
-        descriptionEdit.setText(schedule.getContent());
+        new Thread(()->{
+            Task task = taskDao.queryTaskById(mTaskId);
+            if(task == null){
+                showToast("当前任务不存在");
+            }else {
+                showSuccess(task);
+            }
+        }).start();
     }
 
     private void showAddSuccess(){
         runOnUiThread(() -> {
             EventBus.getDefault().post(new AddEvent()); //发送成功添加日程消息，告诉主活动显示改变
             finish();
-            if(mType ==Constants.ADD){
+            if(mTaskId ==Constants.ADD){
                 CommonUtils.showToast("成功添加日程");
             } else {
                 CommonUtils.showToast("成功修改日程");
@@ -303,17 +319,51 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
      * @param activity 需跳转到这个活动的活动
      * @param date 日期
      */
-    public static void startActivity(Activity activity,String date,String formatDate) {
+    public static void startActivityByAdd(Activity activity, String date, String formatDate) {
         Intent intent = new Intent(activity, AddActivity.class);
         intent.putExtra(Constants.KEY_ADD_DATE,date);
         intent.putExtra(Constants.KEY_ADD_DATE_FORMAT,formatDate);
         activity.startActivity(intent);
     }
 
-    public static void startActivityByUpdate(Activity activity, int type, Schedule schedule) {
+
+    /**
+     * 根据taskId来决定是修改还是添加任务
+     * @param activity 活动
+     * @param taskId 任务号为-1表示是添加任务，否则则是修改任务
+     *
+     **/
+        public static void startActivityByUpdate(Activity activity,int taskId) {
         Intent intent = new Intent(activity, AddActivity.class);
-        intent.putExtra(Constants.KEY_ADD_TYPE,type);
-        intent.putExtra(Constants.KEY_SCHEDULE,schedule);
+        intent.putExtra(Constants.KEY_ID,taskId);
         activity.startActivity(intent);
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void showSuccess(Task task) {
+        runOnUiThread(()->{
+            mId = task.getTaskId();
+            mStartTime = task.getStartTime();
+            mDateFormat =task.getDate();
+            mState = task.isState();
+            mDateText = DateUtils.dateFormat(task.getDate());
+            dateTv.setText(DateUtils.dateFormat(task.getDate())+"，"+DateUtils.timeFormat(task.getStartTime()));
+            statusCheckBox.setChecked(mState);
+            if(mState){
+                dateTv.setTextColor(grayChecked);
+            }else {
+                dateTv.setTextColor(blueUnChecked);
+            }
+            priorityIv.setImageDrawable(getDrawable(priorityPic[task.getPriority()]));
+            titleTv.setText(task.getTitle());
+            descriptionEdit.setText(task.getContent());
+        });
+    }
+
+    private void showToast(String msg) {
+        runOnUiThread(()->{
+            CommonUtils.showToast(msg);
+        });
     }
 }

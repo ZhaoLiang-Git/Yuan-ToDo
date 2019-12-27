@@ -13,9 +13,10 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.adapter.EventAdapter;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
-import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
+import com.example.schedulemanagement.db.TaskDao;
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
@@ -44,7 +45,7 @@ import okhttp3.Call;
  * </pre>
  */
 
-public class TodayFragment extends Fragment {
+public class TaskFragment extends Fragment {
     @BindView(R.id.recyclerView)
     GroupRecyclerView recyclerView;
     @BindString(R.string.dialog_delete_text)
@@ -52,16 +53,17 @@ public class TodayFragment extends Fragment {
     @BindString(R.string.dialog_delete_title)
     String deleteTitle;
 
-    private static final String TAG = "TodayFragment";
+    private static final String TAG = "TaskFragment";
     private EventAdapter mAdapter;
-    private Event mEvent = new Event();
+    private TaskDao taskDao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         EventBus.getDefault().register(this);
-        View view = inflater.inflate(R.layout.fragment_today, container, false);
+        View view = inflater.inflate(R.layout.fragment_task, container, false);
         ButterKnife.bind(this,view);
+        taskDao = new TaskDao();
         return view;
     }
 
@@ -87,29 +89,14 @@ public class TodayFragment extends Fragment {
     }
 
     //更新日程
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onUpdateEvent(UpdateStateEvent event) {
-        String status = event.isChecked()?"done":"undone";
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN+"update")
-                .addParams(Constants.Params_STATUS,status)
-                .addParams(Constants.Params_ID,event.getEventBean().getId()+"")
-                .addParams(Constants.Params_TITLE,event.getEventBean().getTitle())
-                .addParams(Constants.Params_CONTENT,event.getEventBean().getContent())
-                .addParams(Constants.Params_START,event.getEventBean().getS_starting())
-                .addParams(Constants.Params_DATE,event.getEventBean().getS_date())
-                .addParams(Constants.Params_PRIORITY,event.getEventBean().getPriority())
-                .build()
-                .execute(new BaseResponseCallback<Event>() {
-                    @Override
-                    public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode() == Constants.CODE_SUCCESS){
-                            showDayEvent();
-                        }else {
-                            CommonUtils.showToast("修改日程失败");
-                        }
-                    }
-                });
+        if(taskDao.update(event.getEventBean())!=0){
+            showDayEvent();
+        }else {
+            showFail("修改失败" );
+        }
+
     }
 
     @Override
@@ -118,25 +105,31 @@ public class TodayFragment extends Fragment {
         initRecyclerView();
     }
     private void initRecyclerView(){
-        mAdapter = new EventAdapter(getActivity());
+        mAdapter = new EventAdapter(getActivity(),true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.addItemDecoration(new GroupItemDecoration<String, Event.EventBean>());
+        recyclerView.addItemDecoration(new GroupItemDecoration<String, Task>());
         recyclerView.setAdapter(mAdapter);
         //item点击效果
-        mAdapter.setOnClickListener((position,schedule) -> {
-            AddActivity.startActivityByUpdate(getActivity(),Constants.UPDATE,schedule);
+        mAdapter.setOnClickListener((position,taskId) -> {
+            AddActivity.startActivityByUpdate(getActivity(),taskId);
         });
         recyclerView.notifyDataSetChanged();
         showDayEvent();
-//        showEvent();+
 
 
+    }
+    //获取数据库所有任务表
+    private void showDayEvent(){
+        new Thread(()->{
+            Event event = taskDao.findAllTask();
+            showSuccess(event);
+        }).start();
     }
 
     /**
      * 网络获取日程
      */
-    private void showDayEvent() {
+    private void showDayEventByHttp() {
         OkHttpUtils.post()
                 .url(Constants.BASE_URL_MAIN + "show")
                 .addParams("s_date", DateUtils.getTodayDate())
@@ -164,24 +157,15 @@ public class TodayFragment extends Fragment {
      * 删除日程
      */
     private void delete(int id){
-        OkHttpUtils.post()
-                .url(Constants.BASE_URL_MAIN+"delete")
-                .addParams(Constants.Params_ID,id+"")
-                .build()
-                .execute(new BaseResponseCallback<Event>() {
-                    @Override
-                    public void onResponse(BaseResponse response, int id) {
-                        if(response.getCode() == 0){
-                            showDeleteSuccess();
-                        }else {
-                            CommonUtils.showToast(response.getMsg());
-                        }
-                    }
-                });
+        new Thread(()->{
+            if(taskDao.delete(id) != -1){
+                showDeleteSuccess();
+            }
+        }).start();
+
     }
     /**
      * 查询日程成功
-     *
      * @param event 事件
      */
     private void showSuccess(Event event) {
@@ -195,7 +179,9 @@ public class TodayFragment extends Fragment {
      * 查询日程失败
      */
     private void showFail(String msg) {
-        CommonUtils.showToast(getActivity(), msg);
+        getActivity().runOnUiThread(()->{
+            CommonUtils.showToast(getActivity(), msg);
+        });
     }
 
     /**
@@ -209,16 +195,7 @@ public class TodayFragment extends Fragment {
 
     }
 
-    /**
-     * 测试
-     */
-//    private void showEvent() {
-//        mEvent = mAdapter.getEvent();
-//        mAdapter.notifyChanged(getActivity(), "待完成", mEvent);
-//        recyclerView.notifyDataSetChanged();
-//    }
-
-    public static TodayFragment newInstance() {
-        return new TodayFragment();
+    public static TaskFragment newInstance() {
+        return new TaskFragment();
     }
 }

@@ -1,5 +1,9 @@
 package com.example.schedulemanagement.db;
 
+import android.util.Log;
+
+import com.example.schedulemanagement.entity.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +19,7 @@ import java.sql.SQLException;
  */
 
 public class UserDao extends BaseDao{
+    private static final String TAG = "UserDao";
 
     public boolean login(String username, String password){
         Connection conn = getConnection();
@@ -28,6 +33,7 @@ public class UserDao extends BaseDao{
                 String s1 = rs.getString("username");
                 String s2 = rs.getString("password");
                 if(username.equals(s1) && password.equals(s2)){
+                    User.getInstance().setTaskId(rs.getInt("userId"));
                     return true;
                 }
             }
@@ -51,7 +57,7 @@ public class UserDao extends BaseDao{
             if(rs.next()) return  "用户名已被注册，请重新输入";
             //插入数据
             String sql = "insert into user_3117004905_袁健策(username,password) values(?,?)";
-            if(executeUpdate(sql,new Object[]{username,password})!=0) return "success";
+            if(executeUpdate(sql,new Object[]{username,password})!=0) return "showSuccess";
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {

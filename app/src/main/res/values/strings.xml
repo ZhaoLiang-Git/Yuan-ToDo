@@ -16,10 +16,10 @@
 
     <string name="title_activity_bottom">BottomActivity</string>
     <string name="nav_calendar">日历</string>
-    <string name="nav_today">今天</string>
+    <string name="nav_task">日程</string>
     <string name="nav_person">个人</string>
     <string name="done">已完成</string>
-    <string name="today_event">今日日程</string>
+    <string name="all_event">日程</string>
 
     <string name="add_want">准备做什么？</string>
     <string name="add_description">描述</string>
@@ -27,8 +27,8 @@
     <string name="dialog_ok">确定</string>
 
     <string name="person_logout">退出登录</string>
-    <string name="person_setting">设置</string>
-    <string name="person_about">关于我们</string>
+    <string name="person_category">分类</string>
+    <string name="person_tag">标签</string>
 
     //dialog
     <string name="dialog_sure">确定</string>

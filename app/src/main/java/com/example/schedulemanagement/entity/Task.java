@@ -1,5 +1,7 @@
 package com.example.schedulemanagement.entity;
 
+import java.io.Serializable;
+
 /**
  * <pre>
  *     author : 残渊
@@ -8,7 +10,7 @@ package com.example.schedulemanagement.entity;
  * </pre>
  */
 
-public class Task {
+public class Task implements Serializable {
     //任务号
     private int taskId;
     //分类号
@@ -25,6 +27,8 @@ public class Task {
     private String content;
     //日期
     private String date;
+    //开始时间
+    private String startTime;
     //优先级
     private int priority;
     //任务状态
@@ -108,5 +112,14 @@ public class Task {
 
     public void setState(boolean state) {
         this.state = state;
+    }
+
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 }

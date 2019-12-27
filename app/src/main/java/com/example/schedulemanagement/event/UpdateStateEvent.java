@@ -1,6 +1,7 @@
 package com.example.schedulemanagement.event;
 
 import com.example.schedulemanagement.entity.Event;
+import com.example.schedulemanagement.entity.Task;
 
 /**
  * <pre>
@@ -11,18 +12,12 @@ import com.example.schedulemanagement.entity.Event;
  */
 
 public class UpdateStateEvent {
-    Event.EventBean eventBean;
-    boolean checked;
-    public UpdateStateEvent(Event.EventBean eventBean, boolean checked){
+    Task eventBean;
+    public UpdateStateEvent(Task eventBean){
         this.eventBean = eventBean;
-        this.checked = checked;
     }
 
-    public Event.EventBean getEventBean() {
+    public Task getEventBean() {
         return eventBean;
-    }
-
-    public boolean isChecked() {
-        return checked;
     }
 }

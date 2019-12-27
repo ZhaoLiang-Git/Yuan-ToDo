@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.Schedule;
+import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.widget.group.GroupRecyclerAdapter;
@@ -32,19 +33,24 @@ import butterknife.ButterKnife;
  * </pre>
  */
 
-public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> {
+public class EventAdapter extends GroupRecyclerAdapter<String, Task> {
     private static final String TAG = "EventAdapter";
 
-    LinkedHashMap<String, List<Event.EventBean>> map = new LinkedHashMap<>();
-    List<String> titles = new ArrayList<>();
+    private LinkedHashMap<String, List<Task>> map = new LinkedHashMap<>();
+    private List<String> titles = new ArrayList<>();
     private Context mContext;
     private OnClickListener listener;
+    private boolean isAll = false;
 
 
 
     public EventAdapter(Context context) {
         super(context);
-        mContext =context;
+        mContext = context;
+    }
+    public EventAdapter(Context context,boolean isAll) {
+        this(context);
+        this.isAll = isAll;
     }
 
     class EventViewHolder extends RecyclerView.ViewHolder {
@@ -52,13 +58,14 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
         TextView titleTv;
         @BindView(R.id.stateCheckBox)
         CheckBox stateCheckBox;
+        @BindView(R.id.dateTv)
+        TextView dateTv;
         View mView;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             mView = itemView;
             ButterKnife.bind(this, itemView);
-
         }
 
     }
@@ -69,97 +76,35 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
     }
 
     @Override
-    protected void onBindViewHolder(RecyclerView.ViewHolder holder, Event.EventBean item, int position) {
+    protected void onBindViewHolder(RecyclerView.ViewHolder holder, Task item, int position) {
         EventViewHolder eventViewHolder = (EventViewHolder) holder;
         eventViewHolder.titleTv.setText(item.getTitle());
-        if(item.getStatus().equals("done")){
+        if(isAll){
+            eventViewHolder.dateTv.setText(item.getDate());
+        }else {
+            eventViewHolder.dateTv.setText(item.getStartTime());
+        }
+        if (item.isState()) {
             eventViewHolder.stateCheckBox.setChecked(true);
             eventViewHolder.titleTv.setTextColor(mContext.getResources().getColor(R.color.gray));
-        }else {
+        } else {
             eventViewHolder.stateCheckBox.setChecked(false);
             eventViewHolder.titleTv.setTextColor(mContext.getResources().getColor(R.color.black));
         }
         eventViewHolder.stateCheckBox.setOnClickListener(view -> {
             boolean checked = ((CheckBox) view).isChecked();
-            EventBus.getDefault().post(new UpdateStateEvent(item,checked));
+            item.setState(checked);
+            EventBus.getDefault().post(new UpdateStateEvent(item));
         });
         //点击效果
         eventViewHolder.mView.setOnClickListener(view -> {
-            Schedule schedule = new Schedule();
-            schedule.setId(item.getId());
-            schedule.setTitle(item.getTitle());
-            schedule.setContent(item.getContent());
-            schedule.setPriority(item.getPriority());
-            schedule.setS_date(item.getS_date());
-            schedule.setStatus(item.getStatus());
-            schedule.setS_starting(item.getS_starting());
-            listener.onClick(position,schedule);
+            listener.onClick(position, item.getTaskId());
         });
         eventViewHolder.mView.setOnLongClickListener(view -> {
-            EventBus.getDefault().post(new DeleteEvent(item.getId()));
+            EventBus.getDefault().post(new DeleteEvent(item.getTaskId()));
             return true;
         });
     }
-/*
-测试方法
- */
-//    public static Event.EventBean get(String title) {
-//        Event.EventBean event = new Event.EventBean();
-//        event.setTitle(title);
-//        event.setStatus("undone");
-//        return event;
-//    }
-//    public static Event.EventBean getDone(String title) {
-//        Event.EventBean event = new Event.EventBean();
-//        event.setTitle(title);
-//        event.setStatus("done");
-//        return event;
-//    }
-//
-//    public static Event getEvent() {
-//        Event event = new Event();
-//        List<Event.EventBean> doneBean = new ArrayList<>();
-//        List<Event.EventBean> unDoneBean = new ArrayList<>();
-//        unDoneBean.add(get("洗澡"));
-//        unDoneBean.add(get("睡觉"));
-//        unDoneBean.add(get("软工考试"));
-//        unDoneBean.add(get("复习"));
-//        doneBean.add(getDone("吃饭"));
-//        doneBean.add(getDone("上课"));
-//        doneBean.add(getDone("对接"));
-//        doneBean.add(getDone("打豆豆"));
-//        doneBean.add(getDone("听歌"));
-//        doneBean.add(getDone("唱歌"));
-//        doneBean.add(getDone("嗨歌"));
-//        doneBean.add(getDone("周杰伦"));
-//        doneBean.add(getDone("暗号"));
-//
-//        event.setDone(doneBean);
-//        event.setUndone(unDoneBean);
-//        return event;
-//    }
-//    public static Event getEvent1() {
-//        Event event = new Event();
-//        List<Event.EventBean> doneBean = new ArrayList<>();
-//        List<Event.EventBean> unDoneBean = new ArrayList<>();
-//        unDoneBean.add(get("洗澡"));
-//        unDoneBean.add(get("睡觉"));
-//        unDoneBean.add(get("复习"));
-//        doneBean.add(getDone("吃饭"));
-//        doneBean.add(getDone("上课"));
-//        doneBean.add(getDone("对接"));
-//        doneBean.add(getDone("打豆豆"));
-//        doneBean.add(getDone("听歌"));
-//        doneBean.add(getDone("唱歌"));
-//        doneBean.add(getDone("嗨歌"));
-//        doneBean.add(getDone("周杰伦"));
-//        doneBean.add(getDone("暗号"));
-//        doneBean.add(getDone("软工考试"));
-//
-//        event.setDone(doneBean);
-//        event.setUndone(unDoneBean);
-//        return event;
-//    }
 
     public void notifyChanged(Context context, String title, Event event) {
         map.clear();
@@ -174,11 +119,11 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Event.EventBean> 
         resetGroups(map, titles);
     }
 
-    public void setOnClickListener(OnClickListener listener){
+    public void setOnClickListener(OnClickListener listener) {
         this.listener = listener;
     }
 
-    public interface OnClickListener{
-        void onClick(int position, Schedule schedule);
+    public interface OnClickListener {
+        void onClick(int position, int taskId);
     }
 }
