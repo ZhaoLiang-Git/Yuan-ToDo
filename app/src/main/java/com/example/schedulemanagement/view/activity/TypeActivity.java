@@ -13,8 +13,14 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.adapter.TypeAdapter;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.db.TypeDao;
+import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.Type;
+import com.example.schedulemanagement.event.TypeEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +43,26 @@ public class TypeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_type);
         typeDao = new TypeDao();
+        EventBus.getDefault().register(this);
         initData();
         initView();
         initRecycler();
         show();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void onTypeEvent(TypeEvent typeEvent){
+        typeList.clear();
+        typeList.addAll(typeDao.query(mType));
+        showSuccess();
+    }
+
     private void initData(){
         mType = getIntent().getIntExtra(Constants.KEY_TYPE,0);
     }

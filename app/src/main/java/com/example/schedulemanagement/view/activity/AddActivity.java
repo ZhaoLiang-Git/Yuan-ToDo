@@ -26,6 +26,7 @@ import com.example.schedulemanagement.db.TaskDao;
 import com.example.schedulemanagement.db.TypeDao;
 import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
+import com.example.schedulemanagement.event.TypeEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -238,6 +239,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                     if(typeDao.insert(input.toString(),isCategory)==-1){
                         showToast(isCategory?"建立失败，分类名已存在":"建立失败，标签名已存在");
                     }else {
+                        EventBus.getDefault().post(new TypeEvent());//告诉分类，标签值改变
                         showToast("建立成功");
                     }
                 }).start())
@@ -402,6 +404,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private void showAddSuccess(){
         runOnUiThread(() -> {
             EventBus.getDefault().post(new AddEvent()); //发送成功添加日程消息，告诉主活动显示改变
+            EventBus.getDefault().post(new TypeEvent());//告诉分类，标签值改变
             finish();
             if(mTaskId ==Constants.ADD){
                 CommonUtils.showToast("成功添加日程");

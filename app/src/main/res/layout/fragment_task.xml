@@ -31,6 +31,7 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:layout_below="@id/linear"
+        android:overScrollMode="never"
         app:group_background="@color/group_color"
         app:group_center="false"
         app:group_has_header="false"

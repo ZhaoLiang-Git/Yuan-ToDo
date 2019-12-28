@@ -16,6 +16,7 @@ import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.DeleteEvent;
+import com.example.schedulemanagement.event.TypeEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.widget.ConfirmDialog;
@@ -91,6 +92,12 @@ public class TaskActivity extends AppCompatActivity {
         } else {
             showFail("修改失败");
         }
+    }
+
+    //更新标签，分类
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onTypeEvent(TypeEvent event) {
+        showTask();
     }
 
     private void initRecyclerView() {
