@@ -16,7 +16,6 @@ import com.example.schedulemanagement.R;
 import com.example.schedulemanagement.adapter.EventAdapter;
 import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.base.entity.BaseResponse;
-import com.example.schedulemanagement.callback.BaseResponseCallback;
 import com.example.schedulemanagement.callback.EventResponseCallback;
 import com.example.schedulemanagement.db.TaskDao;
 import com.example.schedulemanagement.entity.Event;
@@ -131,7 +130,7 @@ public class CalendarFragment extends Fragment {
 //    private void updateByHttp(UpdateStateEvent event) {
 //        String status = event.isChecked()?"done":"undone";
 //        OkHttpUtils.post()
-//                .url(Constants.BASE_URL_MAIN+"update")
+//                .url(Constants.BASE_URL_MAIN+"updateTaskAndTag")
 //                .addParams(Constants.Params_STATUS,status)
 //                .addParams(Constants.Params_ID,event.getEventBean().getId()+"")
 //                .addParams(Constants.Params_TITLE,event.getEventBean().getTitle())

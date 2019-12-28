@@ -57,7 +57,7 @@ public class TypeActivity extends AppCompatActivity {
         typeAdapter = new TypeAdapter(typeList);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(typeAdapter);
-        typeAdapter.setOnItemClickListener(type -> TaskActivity.toTaskActivity(this,type.getId(),type.getName()));
+        typeAdapter.setOnItemClickListener(type -> TaskActivity.toTaskActivity(this,type.getId(),type.getName(),mType));
     }
 
     private void show(){

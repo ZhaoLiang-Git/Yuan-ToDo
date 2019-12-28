@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static com.example.schedulemanagement.app.Constants.DB_NAME;
 import static com.example.schedulemanagement.app.Constants.HOST_IP;
@@ -29,7 +30,7 @@ public class BaseDao {
         conn = null;
         try {
             Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + HOST_IP + ":1433/" + DB_NAME +";useunicode=true;characterEncoding=UTF-8" , "sa", "3117004905");
+            conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + HOST_IP + ":1433/" + DB_NAME + ";useunicode=true;characterEncoding=UTF-8", "sa", "3117004905");
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -62,6 +63,7 @@ public class BaseDao {
      *
      * 增删改方法
      * 参数为 SQL语句 和 对象数组
+     * @ isReturnPrimaryKey 是否返回主键
      * @return 返回受影响行数
      */
     public int executeUpdate(String sql, Object[] ob) {
@@ -69,15 +71,39 @@ public class BaseDao {
         PreparedStatement ps = null;
         try {
             ps = prepareStatement(conn, sql, ob);
-            int i = ps.executeUpdate();
-            return i;
+            return ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
         } finally {
             closeAll(conn, ps, null);
         }
+    }
 
+    //需要返回主键
+    public int executeUpdateNeedReturnPK(String sql, Object[] ob) {
+        conn = getConnection();
+        PreparedStatement ps = null;
+        ResultSet resultSet;
+        try {
+            int index = 1;
+            ps = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            if (ps != null && ob != null) {
+                for (Object o : ob) {
+                    ps.setObject(index, o);
+                    index++;
+                }
+            }
+            ps.executeUpdate();
+            resultSet = ps.getGeneratedKeys();
+            if (resultSet.next()) return resultSet.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            closeAll(conn, ps, null);
+        }
+        return 0;
     }
 
     /***

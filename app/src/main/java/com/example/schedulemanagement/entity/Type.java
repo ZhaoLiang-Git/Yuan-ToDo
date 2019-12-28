@@ -16,6 +16,15 @@ public class Type {
     //id
     private int id;
 
+    public Type(){
+
+    }
+
+    public Type(String name, int id) {
+        this.name = name;
+        this.id = id;
+    }
+
     public int getId() {
         return id;
     }

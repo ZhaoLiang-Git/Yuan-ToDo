@@ -121,7 +121,7 @@ public class TaskFragment extends Fragment {
     //获取数据库所有任务表
     private void showDayEvent(){
         new Thread(()->{
-            Event event = taskDao.findAllTask();
+            Event event = taskDao.queryAllTasks();
             showSuccess(event);
         }).start();
     }

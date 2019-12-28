@@ -45,8 +45,9 @@ public class TaskActivity extends AppCompatActivity {
     TextView titleTv;
     private EventAdapter mAdapter;
     private TaskDao taskDao;
-    private int cId;
+    private int mId;
     private String cName;
+    private int mType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,15 +61,16 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        cId = getIntent().getIntExtra(Constants.KEY_ID, 0);
+        mId = getIntent().getIntExtra(Constants.KEY_ID, 0);
         cName = getIntent().getStringExtra(Constants.KEY_NAME);
         titleTv.setText(cName);
+        mType = getIntent().getIntExtra(Constants.KEY_TYPE,0);
     }
 
     //添加日程成功重新显示日程
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAddEvent(AddEvent event) {
-        showDayEvent();
+        showTask();
     }
 
     //删除日程
@@ -85,11 +87,10 @@ public class TaskActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onUpdateEvent(UpdateStateEvent event) {
         if (taskDao.update(event.getEventBean()) != 0) {
-            showDayEvent();
+            showTask();
         } else {
             showFail("修改失败");
         }
-
     }
 
     private void initRecyclerView() {
@@ -102,15 +103,20 @@ public class TaskActivity extends AppCompatActivity {
             AddActivity.startActivityByUpdate(this, taskId);
         });
         recyclerView.notifyDataSetChanged();
-        showDayEvent();
+        showTask();
     }
 
     //获取数据库所有任务表
-    private void showDayEvent() {
-        int cId = getIntent().getIntExtra(Constants.KEY_ID, 0);
+    private void showTask() {
         new Thread(() -> {
-
-            Event event = taskDao.findAllTask();
+            Event event;
+            if(mType == Constants.TYPE_CATEGORY){
+                //分类
+                event = taskDao.queryTaskByCategoryId(mId);
+            }else {
+                //标签
+                event = taskDao.queryTaskByTagId(mId);
+            }
             showSuccess(event);
         }).start();
     }
@@ -159,10 +165,11 @@ public class TaskActivity extends AppCompatActivity {
 
     }
 
-    public static void toTaskActivity(Activity activity, int cId, String cName) {
+    public static void toTaskActivity(Activity activity, int id, String name,int type) {
         Intent intent = new Intent(activity, TaskActivity.class);
-        intent.putExtra(Constants.KEY_ID, cId);
-        intent.putExtra(Constants.KEY_NAME, cName);
+        intent.putExtra(Constants.KEY_ID, id);
+        intent.putExtra(Constants.KEY_NAME, name);
+        intent.putExtra(Constants.KEY_TYPE,type);
         activity.startActivity(intent);
     }
 

@@ -1,7 +1,5 @@
 package com.example.schedulemanagement.db;
 
-import android.util.Log;
-
 import com.example.schedulemanagement.entity.User;
 
 import java.sql.Connection;
@@ -33,7 +31,7 @@ public class UserDao extends BaseDao{
                 String s1 = rs.getString("username");
                 String s2 = rs.getString("password");
                 if(username.equals(s1) && password.equals(s2)){
-                    User.getInstance().setTaskId(rs.getInt("userId"));
+                    User.getInstance().setUserId(rs.getInt("userId"));
                     return true;
                 }
             }
