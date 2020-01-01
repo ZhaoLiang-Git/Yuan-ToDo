@@ -149,7 +149,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             if(typeDao.isEmptyOfCategory()) typeDao.insert("默认",true);
 
             //如果是一开始设置分类就得在数据库中获取分类的位置
-            if(mCategoryIndex == -1) mCategoryIndex = typeDao.queryCategoryIndex(mCategoryId);
+            if(mCategoryIndex == -1 && mCategoryId!=0) mCategoryIndex = typeDao.queryCategoryIndex(mCategoryId);
             //查询分类列表
             HashMap<String,Integer> map = typeDao.queryCategory();
             showCategoryDialog(map);

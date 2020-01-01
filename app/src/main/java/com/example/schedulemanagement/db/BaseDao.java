@@ -9,6 +9,7 @@ import java.sql.Statement;
 
 import static com.example.schedulemanagement.app.Constants.DB_NAME;
 import static com.example.schedulemanagement.app.Constants.HOST_IP;
+import static com.example.schedulemanagement.app.Constants.WIFI_IP;
 
 /**
  * <pre>
@@ -30,7 +31,7 @@ public class BaseDao {
         conn = null;
         try {
             Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + HOST_IP + ":1433/" + DB_NAME + ";useunicode=true;characterEncoding=UTF-8", "sa", "3117004905");
+            conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + WIFI_IP + ":1433/" + DB_NAME + ";useunicode=true;characterEncoding=UTF-8", "sa", "3117004905");
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

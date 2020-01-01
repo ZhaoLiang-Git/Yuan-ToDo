@@ -9,7 +9,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
+import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.entity.Type;
+import com.example.schedulemanagement.event.TypeDeleteEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -24,14 +28,16 @@ import java.util.List;
 public class TypeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Type> typeList;
+    private int type;
     private onItemClickListener onItemClickListener;
 
     public void setOnItemClickListener(onItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
-    public TypeAdapter(List<Type> type){
-        this.typeList = type;
+    public TypeAdapter(List<Type> typeList,int type){
+        this.typeList = typeList;
+        this.type = type;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
@@ -63,7 +69,13 @@ public class TypeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder holder = (ViewHolder) viewHolder;
         holder.titleTv.setText(typeList.get(i).getName());
         holder.numTv.setText(typeList.get(i).getNum()+"");
+        //点击效果
         holder.itemView.setOnClickListener(view -> onItemClickListener.onClick(typeList.get(i)));
+        //长按删除
+        holder.itemView.setOnLongClickListener(view -> {
+            EventBus.getDefault().post(new TypeDeleteEvent(typeList.get(i), type == Constants.TYPE_CATEGORY));
+            return true;
+        });
     }
 
     @Override

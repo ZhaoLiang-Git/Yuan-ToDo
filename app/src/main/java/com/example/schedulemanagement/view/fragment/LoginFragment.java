@@ -91,7 +91,7 @@ public class LoginFragment extends Fragment {
             if(userDao.login(username,password)){
                 loginSuccess(username);
             }else {
-                loginFail("登录失败");
+                loginFail("用户不存在或密码错误");
             }
         }).start();
     }
@@ -138,9 +138,9 @@ public class LoginFragment extends Fragment {
      */
     private void loginSuccess(String username) {
         getActivity().runOnUiThread(() -> {
+            CommonUtils.showToast(getActivity(),getString(R.string.login_success));
             getActivity().finish();
             MainActivity.startActivity(getActivity(),username);
-            CommonUtils.showToast(getActivity(),getString(R.string.login_success));
         });
     }
 

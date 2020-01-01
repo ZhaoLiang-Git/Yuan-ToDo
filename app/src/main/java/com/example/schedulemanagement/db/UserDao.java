@@ -52,7 +52,7 @@ public class UserDao extends BaseDao{
             String querySql = "select [username] from [user_3117004905_袁健策] where [username] =?";
             stmt = prepareStatement(conn,querySql,new Object[]{username});
             rs = stmt.executeQuery();
-            if(rs.next()) return  "用户名已被注册，请重新输入";
+            if(rs.next()) return  "用户名已存在";
             //插入数据
             String sql = "insert into user_3117004905_袁健策(username,password) values(?,?)";
             if(executeUpdate(sql,new Object[]{username,password})!=0) return "showSuccess";

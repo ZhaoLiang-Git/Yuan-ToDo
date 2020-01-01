@@ -56,6 +56,8 @@ public class TaskDao extends BaseDao {
         return res;
     }
 
+
+
     //查询已经完成的任务表
     private List<Task> findDoneTasks(String sql, Object... params) {
         return search(sql, params);
@@ -69,9 +71,11 @@ public class TaskDao extends BaseDao {
     //查询全部任务
     public Event queryAllTasks() {
         //已完成按日期，开始时间倒序排序
-        String queryDoneSql = "select * from [task_3117004905_袁健策] where [state] = 1 and [userId]=? order by date desc,startTime desc";
+        String queryDoneSql =
+                "select * from [task_3117004905_袁健策] where [state] = 1 and [userId]=? order by date desc,startTime desc";
         //未完成按日期，开始时间正序排序
-        String queryUndoneSql = "select * from [task_3117004905_袁健策] where [state] = 0 and [userId]=? order by date,startTime";
+        String queryUndoneSql =
+                "select * from [task_3117004905_袁健策] where [state] = 0 and [userId]=? order by date,startTime";
         Event event = new Event();
         event.setDone(findDoneTasks(queryDoneSql, User.getInstance().getUserId()));
         event.setUndone(findUnDoneTasks(queryUndoneSql, User.getInstance().getUserId()));
@@ -82,9 +86,13 @@ public class TaskDao extends BaseDao {
     //根据日期查找任务
     public Event queryTaskByDate(String date) {
         //已完成按开始时间倒序排序
-        String queryDoneSql = "select * from [task_3117004905_袁健策] where [state] = 1 and [date] =? and [userId]=? order by startTime desc";
+        String queryDoneSql =
+                        "select * from [task_3117004905_袁健策] " +
+                        "where [state] = 1 and [date] =? and [userId]=? " +
+                        "order by startTime desc";
         //未完成按开始时间正序排序
-        String queryUndoneSql = "select * from [task_3117004905_袁健策] where [state] = 0 and [date]=? and [userId]=? order by startTime";
+        String queryUndoneSql =
+                "select * from [task_3117004905_袁健策] where [state] = 0 and [date]=? and [userId]=? order by startTime";
         Event event = new Event();
         event.setDone(findDoneTasks(queryDoneSql, date, User.getInstance().getUserId()));
         event.setUndone(findUnDoneTasks(queryUndoneSql, date, User.getInstance().getUserId()));
@@ -101,12 +109,18 @@ public class TaskDao extends BaseDao {
     //根据分类号查找任务
     public Event queryTaskByCategoryId(int cId) {
         //已完成按开始时间倒序排序
-        String queryDoneSql = "select * from [task_3117004905_袁健策] where [state] = 1 and [cId] =? and [userId]=? order by date desc,startTime desc";
+        String queryDoneSql =
+                "select * from [task_3117004905_袁健策] "+
+                "where [state] = 1 and [cId] =?" +
+                "order by date desc,startTime desc";
         //未完成按开始时间正序排序
-        String queryUndoneSql = "select * from [task_3117004905_袁健策] where [state] = 0 and [cId]=? and [userId]=? order by date,startTime";
+        String queryUndoneSql =
+                        "select * from [task_3117004905_袁健策]" +
+                        " where [state] = 0 and [cId]=?" +
+                        " order by date,startTime";
         Event event = new Event();
-        event.setDone(findDoneTasks(queryDoneSql, cId, User.getInstance().getUserId()));
-        event.setUndone(findUnDoneTasks(queryUndoneSql, cId, User.getInstance().getUserId()));
+        event.setDone(findDoneTasks(queryDoneSql, cId));
+        event.setUndone(findUnDoneTasks(queryUndoneSql, cId));
         return event;
     }
 
@@ -119,7 +133,7 @@ public class TaskDao extends BaseDao {
                         " where [state] = 1 and [taskId] in " +
                         " (select [taskId] from " +
                         " task_select_tag_3117004905_袁健策 " +
-                        " where  [tagId]=? and [userId]=?) " +
+                        " where  [tagId]=?) " +
                         " order by date desc,startTime desc ";
         //未完成按开始时间正序排序,子查询
         String queryUndoneSql =
@@ -128,11 +142,11 @@ public class TaskDao extends BaseDao {
                         " where [state] = 0 and [taskId] in " +
                         " (select [taskId] from " +
                         " task_select_tag_3117004905_袁健策 " +
-                        " where  [tagId]=? and [userId]=?) " +
+                        " where  [tagId]=?) " +
                         " order by date,startTime";
         Event event = new Event();
-        event.setDone(findDoneTasks(queryDoneSql, tagId, User.getInstance().getUserId()));
-        event.setUndone(findUnDoneTasks(queryUndoneSql, tagId, User.getInstance().getUserId()));
+        event.setDone(findDoneTasks(queryDoneSql, tagId));
+        event.setUndone(findUnDoneTasks(queryUndoneSql, tagId));
         return event;
     }
 
@@ -153,11 +167,12 @@ public class TaskDao extends BaseDao {
                 }
         );
         //插入到任务-标签表
-        insertTaskSTag(taskId, tagIds);
+        if(tagIds!=null&&tagIds.size()!=0) insertTaskSTag(taskId, tagIds);
     }
 
     //删除
     public int delete(int taskId) {
+        //首先删除任务
         String sql = "delete from [task_3117004905_袁健策] where [taskId] = ?";
         return executeUpdate(sql, new Object[]{taskId});
     }
@@ -173,14 +188,17 @@ public class TaskDao extends BaseDao {
     //添加任务-标签表的数据
     private void insertTaskSTag(int taskId, List<Integer> tagIds) {
         for (int tagId : tagIds) {
-            String tstSql = "insert into task_select_tag_3117004905_袁健策(taskId,tagId,userId) values(?,?,?)";
-            executeUpdate(tstSql, new Object[]{taskId, tagId, User.getInstance().getUserId()});
+            String tstSql = "insert into task_select_tag_3117004905_袁健策(taskId,tagId) values(?,?)";
+            executeUpdate(tstSql, new Object[]{taskId, tagId});
         }
     }
 
     //更新task表
     public int update(Task task) {
-        String sql = "update task_3117004905_袁健策 set [cId]=?,[title]=?,[content]=?,[date]=?,[startTime]=?,[priority]=?,[state]=? where [taskId] = ?";
+        String sql =
+                        "update task_3117004905_袁健策 " +
+                        "set [cId]=?,[title]=?,[content]=?,[date]=?,[startTime]=?,[priority]=?,[state]=? " +
+                        "where [taskId] = ?";
         return executeUpdate(sql, new Object[]{
                         task.getcId(),
                         task.getTitle(),

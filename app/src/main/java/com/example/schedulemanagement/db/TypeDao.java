@@ -213,10 +213,14 @@ public class TypeDao extends BaseDao {
     }
 
 
+
+
     //添加分类
     public int insert(String title,boolean isCategory){
         String sql;
+        //如果名称重复，返回-1
         if(isExist(title,isCategory)) return -1;
+        //否则直接插入到表中
         if(isCategory) sql = "insert into category_3117004905_袁健策(userId,cName) values(?,?)";
         else sql = "insert into tag_3117004905_袁健策(userId,tagName) values(?,?)";
         return executeUpdate(sql,new Object[]{User.getInstance().getUserId(),title});
@@ -231,14 +235,16 @@ public class TypeDao extends BaseDao {
     }
 
     //删除分类
-    public int delete(int cId){
-        String sql = "delete from category_3117004905_袁健策 where cId=?";
+    public int delete(int cId,boolean isCategory){
+        String sql;
+        if(isCategory) sql = "delete from category_3117004905_袁健策 where cId=? ";
+        else sql = "delete from tag_3117004905_袁健策 where tagId=?";
         return executeUpdate(sql,new Object[]{cId});
     }
 
     //修改分类
     public int update(Type type){
-        String sql = "updateTaskAndTag category_3117004905_袁健策 set cName=? where cId=?";
+        String sql = "update category_3117004905_袁健策 set cName=? where cId=?";
         return executeUpdate(sql,new Object[]{type.getName(),type.getId()});
     }
 

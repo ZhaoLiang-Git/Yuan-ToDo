@@ -15,8 +15,12 @@ import com.example.schedulemanagement.app.Constants;
 import com.example.schedulemanagement.db.TypeDao;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.Type;
+import com.example.schedulemanagement.event.AddEvent;
+import com.example.schedulemanagement.event.DeleteEvent;
+import com.example.schedulemanagement.event.TypeDeleteEvent;
 import com.example.schedulemanagement.event.TypeEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
+import com.example.schedulemanagement.widget.ConfirmDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -63,6 +67,22 @@ public class TypeActivity extends AppCompatActivity {
         showSuccess();
     }
 
+    //删除分类，标签
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeleteEvent(TypeDeleteEvent event) {
+        Type type = event.getType();
+        ConfirmDialog dialog = new ConfirmDialog(this);
+        dialog.setOnClickListener(() -> {
+            delete(type,event.isCategory());
+        });
+        if(event.isCategory()){
+            dialog.setTitle("删除分类").setText("你确定删除“"+type.getName()+"”这个分类吗").show();
+        }else {
+            dialog.setTitle("删除标签").setText("你确定删除“"+type.getName()+"”这个标签吗").show();
+        }
+
+    }
+
     private void initData(){
         mType = getIntent().getIntExtra(Constants.KEY_TYPE,0);
     }
@@ -71,22 +91,22 @@ public class TypeActivity extends AppCompatActivity {
         titleTv = findViewById(R.id.typeTv);
         recyclerView = findViewById(R.id.typeRecycler);
         typeList = new ArrayList<>();
+        if(mType == Constants.TYPE_CATEGORY){
+            titleTv.setText(getString(R.string.person_category));
+        }else {
+            titleTv.setText(getString(R.string.person_tag));
+        }
     }
 
     private void initRecycler(){
         manager = new LinearLayoutManager(this);
-        typeAdapter = new TypeAdapter(typeList);
+        typeAdapter = new TypeAdapter(typeList,mType);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(typeAdapter);
         typeAdapter.setOnItemClickListener(type -> TaskActivity.toTaskActivity(this,type.getId(),type.getName(),mType));
     }
 
     private void show(){
-        if(mType == Constants.TYPE_CATEGORY){
-            titleTv.setText(getString(R.string.person_category));
-        }else {
-            titleTv.setText(getString(R.string.person_tag));
-        }
         new Thread(()->{
             typeList.clear();
             typeList.addAll(typeDao.query(mType));
@@ -100,6 +120,23 @@ public class TypeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 删除
+     */
+    private void delete(Type type,boolean isCategory){
+        new Thread(()->{
+            typeDao.delete(type.getId(),isCategory);
+            showDeleteSuccess();
+        }).start();
+
+    }
+
+    private void showDeleteSuccess() {
+        runOnUiThread(() -> {
+            EventBus.getDefault().post(new TypeEvent());
+            CommonUtils.showToast("删除成功");
+        });
+    }
 
     public static void toTypeActivity(Activity activity,int type){
         Intent intent = new Intent(activity,TypeActivity.class);
