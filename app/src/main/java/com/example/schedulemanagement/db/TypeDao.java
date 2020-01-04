@@ -215,7 +215,7 @@ public class TypeDao extends BaseDao {
 
 
 
-    //添加分类
+    //添加分类和标签
     public int insert(String title,boolean isCategory){
         String sql;
         //如果名称重复，返回-1

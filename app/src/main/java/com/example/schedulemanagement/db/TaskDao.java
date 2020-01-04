@@ -72,10 +72,12 @@ public class TaskDao extends BaseDao {
     public Event queryAllTasks() {
         //已完成按日期，开始时间倒序排序
         String queryDoneSql =
-                "select * from [task_3117004905_袁健策] where [state] = 1 and [userId]=? order by date desc,startTime desc";
+                "select * from [task_3117004905_袁健策] where [state] = 1 and [userId]=? " +
+                 "order by date desc,startTime desc";
         //未完成按日期，开始时间正序排序
         String queryUndoneSql =
-                "select * from [task_3117004905_袁健策] where [state] = 0 and [userId]=? order by date,startTime";
+                "select * from [task_3117004905_袁健策] where [state] = 0 and [userId]=? " +
+                 "order by date,startTime";
         Event event = new Event();
         event.setDone(findDoneTasks(queryDoneSql, User.getInstance().getUserId()));
         event.setUndone(findUnDoneTasks(queryUndoneSql, User.getInstance().getUserId()));
@@ -153,7 +155,10 @@ public class TaskDao extends BaseDao {
 
     //添加
     public void insert(Task task, List<Integer> tagIds) {
-        String sql = "insert into task_3117004905_袁健策(userId,cId,title,content,date,startTime,priority,state) values(?,?,?,?,?,?,?,?)";
+        String sql =
+                        "insert into " +
+                        "task_3117004905_袁健策(userId,cId,title,content,date,startTime,priority,state) " +
+                        "values(?,?,?,?,?,?,?,?)";
         //插入任务记录并返回任务号
         int taskId = executeUpdateNeedReturnPK(sql, new Object[]{
                         User.getInstance().getUserId(),
