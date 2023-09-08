@@ -1,6 +1,7 @@
 package com.example.schedulemanagement.view.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -100,7 +101,6 @@ public class CalendarFragment extends Fragment {
         initRecyclerView();
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -197,6 +197,11 @@ public class CalendarFragment extends Fragment {
             mDateFormat = DateUtils.dateFormat(calendarView.getCurYear(), calendarView.getCurMonth(), calendarView.getCurDay());
             mTitle = "今天";
             showDayEvent();
+        });
+
+        //打开年份选择
+        monthDayTv.setOnClickListener(view -> {
+            //calendarView.showYearSelectLayout(calendarView.getCurYear());
         });
     }
 

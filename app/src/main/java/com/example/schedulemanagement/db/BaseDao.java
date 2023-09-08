@@ -30,14 +30,18 @@ public class BaseDao {
     protected Connection getConnection() {
         conn = null;
         try {
-            Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + WIFI_IP + ":1433/" + DB_NAME + ";useunicode=true;characterEncoding=UTF-8", "sa", "3117004905");
+            //Class.forName("net.sourceforge.jtds.jdbc.Driver");
+            //conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + WIFI_IP + ":1433/" + DB_NAME + ";useunicode=true;characterEncoding=UTF-8", "root", "123456");/sqlserver 连接
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://" + WIFI_IP + ":3306/" + DB_NAME, "root", "123456");//mysql连接
+            System.out.println("数据库连接成功！");
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            System.out.println("数据库连接失败！" + e);
         }
         return conn;
     }

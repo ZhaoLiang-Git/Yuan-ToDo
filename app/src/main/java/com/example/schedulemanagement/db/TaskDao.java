@@ -28,6 +28,9 @@ public class TaskDao extends BaseDao {
     private List<Task> search(String sql, Object... params) {
         List<Task> res = new ArrayList<>();
         Connection conn = getConnection();
+        if(conn == null){
+            return res;
+        }
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
