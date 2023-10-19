@@ -18,6 +18,7 @@ import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.TypeEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
+import com.example.schedulemanagement.utils.CalendarProviderManager;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
@@ -79,7 +80,8 @@ public class TaskActivity extends AppCompatActivity {
     public void onDeleteEvent(DeleteEvent event) {
         ConfirmDialog dialog = new ConfirmDialog(this);
         dialog.setOnClickListener(() -> {
-            delete(event.getId());
+            delete(event.getTask().getTaskId());
+            deleteCalender(event.getTask());
         });
         dialog.setText(deleteText).setTitle(deleteTitle).show();
     }
@@ -137,7 +139,18 @@ public class TaskActivity extends AppCompatActivity {
                 showDeleteSuccess();
             }
         }).start();
+    }
 
+    //删除系统日历事件
+    private void deleteCalender(Task task){
+        int addResult = CalendarProviderManager.deleteCalendarEvent(MainActivity.context, task.getId());
+        if (addResult == 0) {
+            System.out.println("删除成功");
+        } else if (addResult == -1) {
+            System.out.println("删除失败");
+        } else if (addResult == -2) {
+            System.out.println("没有权限");
+        }
     }
 
     /**

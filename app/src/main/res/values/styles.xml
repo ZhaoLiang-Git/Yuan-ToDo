@@ -14,7 +14,18 @@
         <item name="android:windowIsFloating">true</item>   <!-- 窗口浮动 -->
         <item name="android:windowContentOverlay">@null</item>  <!-- 没有阴影 -->
     </style>
-    
 
+    <style name="Title_bar_below_ViewSeparator">
+        <item name="android:layout_height">@dimen/DIMEN_1PX</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@color/divider_color</item>
+    </style>
 
+    <style name="margin_ViewSeparator">
+        <item name="android:layout_height">@dimen/DIMEN_1PX</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">#DEDEDE</item>
+        <item name="android:layout_marginRight">@dimen/DIMEN_54PX</item>
+        <item name="android:layout_marginLeft">@dimen/DIMEN_53PX</item>
+    </style>
 </resources>

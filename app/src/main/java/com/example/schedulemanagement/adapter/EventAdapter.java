@@ -9,6 +9,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.example.schedulemanagement.R;
+import com.example.schedulemanagement.app.ScheduleConst;
 import com.example.schedulemanagement.entity.Event;
 import com.example.schedulemanagement.entity.Schedule;
 import com.example.schedulemanagement.entity.Task;
@@ -19,6 +20,7 @@ import com.example.schedulemanagement.widget.group.GroupRecyclerAdapter;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -60,6 +62,15 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Task> {
         CheckBox stateCheckBox;
         @BindView(R.id.dateTv)
         TextView dateTv;
+
+        @BindView(R.id.tv_all_day)
+        TextView tvAllDay;
+
+        @BindView(R.id.tv_start_item)
+        TextView tvStart;
+
+        @BindView(R.id.tv_end_item)
+        TextView tvEnd;
         View mView;
 
         public EventViewHolder(@NonNull View itemView) {
@@ -81,8 +92,10 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Task> {
         eventViewHolder.titleTv.setText(item.getTitle());
         if(isAll){
             eventViewHolder.dateTv.setText(item.getDate());
+            eventViewHolder.dateTv.setVisibility(View.VISIBLE);
         }else {
             eventViewHolder.dateTv.setText(item.getStartTime());
+            eventViewHolder.dateTv.setVisibility(View.GONE);
         }
         if (item.isState()) {
             eventViewHolder.stateCheckBox.setChecked(true);
@@ -96,12 +109,29 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Task> {
             item.setState(checked);
             EventBus.getDefault().post(new UpdateStateEvent(item));
         });
+
+        if (ScheduleConst.SCHEDULE_IS_ALL_DAY == item.getAllDay()){
+            eventViewHolder.tvAllDay.setVisibility(View.VISIBLE);
+            eventViewHolder.tvAllDay.setText("全天");
+
+            eventViewHolder.tvStart.setVisibility(View.GONE);
+            eventViewHolder.tvEnd.setVisibility(View.GONE);
+        } else {
+            eventViewHolder.tvAllDay.setVisibility(View.GONE);
+            Calendar caStart = formatDates(item.getAlertTime());
+            Calendar caEnd = formatDates(item.getEndTimeMill());
+            eventViewHolder.tvStart.setVisibility(View.VISIBLE);
+            eventViewHolder.tvStart.setText(format(caStart.get(Calendar.HOUR_OF_DAY)) + ":" + format(caStart.get(Calendar.MINUTE)));
+            eventViewHolder.tvEnd.setVisibility(View.VISIBLE);
+            eventViewHolder.tvEnd.setText(format(caEnd.get(Calendar.HOUR_OF_DAY)) + ":" + format(caEnd.get(Calendar.MINUTE)));
+        }
+
         //点击效果
         eventViewHolder.mView.setOnClickListener(view -> {
             listener.onClick(position, item.getTaskId());
         });
         eventViewHolder.mView.setOnLongClickListener(view -> {
-            EventBus.getDefault().post(new DeleteEvent(item.getTaskId()));
+            EventBus.getDefault().post(new DeleteEvent(item));
             return true;
         });
     }
@@ -125,5 +155,19 @@ public class EventAdapter extends GroupRecyclerAdapter<String, Task> {
 
     public interface OnClickListener {
         void onClick(int position, int taskId);
+    }
+
+    private Calendar formatDates(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal;
+    }
+
+    public String format(int value) {
+        String tmpStr = String.valueOf(value);
+        if (value < 10) {
+            tmpStr = "0" + tmpStr;
+        }
+        return tmpStr;
     }
 }

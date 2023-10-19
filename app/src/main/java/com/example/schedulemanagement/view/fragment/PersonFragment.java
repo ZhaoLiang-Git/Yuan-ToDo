@@ -27,8 +27,6 @@ import okhttp3.Call;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/05/28
  *     desc   : 个人模块
  * </pre>
  */

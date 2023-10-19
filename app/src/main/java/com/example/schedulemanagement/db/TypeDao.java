@@ -15,8 +15,6 @@ import java.util.List;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/12/27
  *     desc   : 分类,标签等的增删改查操作
  * </pre>
  */

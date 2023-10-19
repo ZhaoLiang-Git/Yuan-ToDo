@@ -1,20 +1,21 @@
 package com.example.schedulemanagement.event;
 
+import com.example.schedulemanagement.entity.Task;
+
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/06/10
  *     desc   :
  * </pre>
  */
 
 public class DeleteEvent {
     int id;
-    public DeleteEvent(int id){
-        this.id = id;
+    Task task;
+    public DeleteEvent(Task task){
+        this.task = task;
     }
 
-    public int getId() {
-        return id;
+    public Task getTask() {
+        return task;
     }
 }

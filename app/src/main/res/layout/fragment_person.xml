@@ -14,13 +14,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_person_jay" />
+            android:src="@drawable/ic_person_bg" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/personHeadPic"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/test_jay"
+            android:src="@drawable/test_user"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -37,7 +37,7 @@
             android:layout_marginTop="@dimen/dp_15"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_20"
-            android:text="3117004905 袁健策"
+            android:text="@string/username"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/personHeadPic" />

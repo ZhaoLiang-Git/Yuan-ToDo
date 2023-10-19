@@ -20,9 +20,11 @@ import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.DeleteEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
+import com.example.schedulemanagement.utils.CalendarProviderManager;
 import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.AddActivity;
+import com.example.schedulemanagement.view.activity.MainActivity;
 import com.example.schedulemanagement.widget.ConfirmDialog;
 import com.example.schedulemanagement.widget.group.GroupItemDecoration;
 import com.example.schedulemanagement.widget.group.GroupRecyclerView;
@@ -39,9 +41,7 @@ import okhttp3.Call;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/05/28
- *     desc   : 今日日程模块
+ *     desc   : 日程管理模块
  * </pre>
  */
 
@@ -83,7 +83,8 @@ public class TaskFragment extends Fragment {
     public void onDeleteEvent(DeleteEvent event) {
         ConfirmDialog dialog = new ConfirmDialog(getActivity());
         dialog.setOnClickListener(() -> {
-            delete(event.getId());
+            delete(event.getTask().getTaskId());
+            deleteCalender(event.getTask());
         });
         dialog.setText(deleteText).setTitle(deleteTitle).show();
     }
@@ -164,6 +165,19 @@ public class TaskFragment extends Fragment {
         }).start();
 
     }
+
+    //删除系统日历事件
+    private void deleteCalender(Task task){
+        int addResult = CalendarProviderManager.deleteCalendarEvent(MainActivity.context, task.getId());
+        if (addResult == 0) {
+            System.out.println("删除成功");
+        } else if (addResult == -1) {
+            System.out.println("删除失败");
+        } else if (addResult == -2) {
+            System.out.println("没有权限");
+        }
+    }
+
     /**
      * 查询日程成功
      * @param event 事件

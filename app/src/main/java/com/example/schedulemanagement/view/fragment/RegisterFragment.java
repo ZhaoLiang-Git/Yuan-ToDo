@@ -32,9 +32,7 @@ import okhttp3.Call;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/05/03
- *     desc   : 注册界面
+ *    desc   : 注册界面
  * </pre>
  */
 

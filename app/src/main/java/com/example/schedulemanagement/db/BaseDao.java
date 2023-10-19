@@ -13,8 +13,6 @@ import static com.example.schedulemanagement.app.Constants.WIFI_IP;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/12/20
  *     desc   : 数据库连接
  * </pre>
  */
@@ -22,7 +20,7 @@ import static com.example.schedulemanagement.app.Constants.WIFI_IP;
 public class BaseDao {
 
     protected Connection conn = null;
-
+    public boolean isConnection;
     /***
      *
      * @return 打开连接
@@ -30,10 +28,10 @@ public class BaseDao {
     protected Connection getConnection() {
         conn = null;
         try {
-            //Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            //conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + WIFI_IP + ":1433/" + DB_NAME + ";useunicode=true;characterEncoding=UTF-8", "root", "123456");/sqlserver 连接
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://" + WIFI_IP + ":3306/" + DB_NAME, "root", "123456");//mysql连接
+            Class.forName("net.sourceforge.jtds.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:jtds:sqlserver://" + "82.157.253.100" + ":1433/" + "myw" + ";useunicode=true;characterEncoding=UTF-8", "MYW", "FaW4CfwEhcJxdeps");
+//            Class.forName("com.mysql.jdbc.Driver");
+//            conn = DriverManager.getConnection("jdbc:mysql://" + WIFI_IP + ":3306/" + DB_NAME, "root", "123456");//mysql连接
             System.out.println("数据库连接成功！");
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block

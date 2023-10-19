@@ -27,10 +27,23 @@
         <activity android:name=".view.activity.AddActivity" />
         <activity android:name=".view.activity.MainActivity" />
         <activity android:name=".view.activity.LoginActivity" />
+        <activity
+            android:name="com.example.schedulemanagement.view.activity.customrepeat.RepeatActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.schedulemanagement.view.activity.customrepeat.CustomRepeatActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.schedulemanagement.view.activity.customreminder.ReminderActivity"
+            android:screenOrientation="portrait" />
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
 
 </manifest>

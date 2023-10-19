@@ -33,6 +33,8 @@ public class StatusBarUtil {
     private static int DEFAULT_COLOR = 0;
     private static float DEFAULT_ALPHA = 0;
     private static final int MIN_API = 19;
+    private static final int INVALID_VAL = -1;
+    private static final int COLOR_DEFAULT = Color.parseColor("#00000000");
 
     public static void immersive(Activity activity) {
         immersive(activity, DEFAULT_COLOR, DEFAULT_ALPHA);
@@ -365,5 +367,35 @@ public class StatusBarUtil {
                     result, Resources.getSystem().getDisplayMetrics());
         }
         return result;
+    }
+
+    public static void setStatusBarColor(Activity activity, int statusColor) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (statusColor != INVALID_VAL) {
+                activity.getWindow().setStatusBarColor(statusColor);
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            }
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            setStatusBarTransparent(activity.getWindow());
+            int color = COLOR_DEFAULT;
+            ViewGroup contentView = (ViewGroup) activity.findViewById(android.R.id.content);
+            if (statusColor != INVALID_VAL) {
+                color = statusColor;
+            }
+            View statusBarView = new View(activity);
+            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    getStatusBarHeight(activity));
+            statusBarView.setBackgroundColor(color);
+            contentView.addView(statusBarView, lp);
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        }
+    }
+
+    public static void setStatusBarTransparent(Window window) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 }

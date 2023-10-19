@@ -29,12 +29,14 @@ public class Constants {
 
 
     //数据库
-    public static final String DB_NAME="scheduleManagement_袁健策_3117004905";//
+    public static final String DB_NAME="myw";
 
     //table
-    public static final String TABLE_USER = "user_3117004905_袁健策";
-
-
+    public static final String TABLE_USER = "user_table";
+    public static final String TABLE_TASK = "task_table";
+    public static final String TABLE_TAG = "tag_table";
+    public static final String TABLE_SELECT = "task_select_table";
+    public static final String TABLE_CATEGORY = "category_select_table";//分类表
 
 
 
@@ -44,6 +46,8 @@ public class Constants {
 
     public static final String KEY_ADD_DATE="date";
     public static final String KEY_ADD_DATE_FORMAT="date_format";
+    public static final String KEY_SELECT_DATA="date_select_long";
+
     public static final String KEY_ID ="id";
     public static final String KEY_NAME ="name";
     public static final String KEY_SCHEDULE="schedule";
@@ -53,5 +57,7 @@ public class Constants {
     public static final int ADD = -1;
     public static final int TYPE_CATEGORY=0;
     public static final int TYPE_TAG=1;
+
+
 
 }

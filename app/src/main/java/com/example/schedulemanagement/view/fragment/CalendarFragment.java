@@ -24,6 +24,7 @@ import com.example.schedulemanagement.entity.Task;
 import com.example.schedulemanagement.event.AddEvent;
 import com.example.schedulemanagement.event.UpdateStateEvent;
 import com.example.schedulemanagement.utils.CommonUtils;
+import com.example.schedulemanagement.utils.DateFormatter;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.view.activity.AddActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
@@ -38,6 +39,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,8 +50,6 @@ import okhttp3.Call;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/05/28
  *     desc   : 日历模块
  * </pre>
  */
@@ -97,6 +100,7 @@ public class CalendarFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initToolbar();
+        addListener();
         onClick();
         initRecyclerView();
     }
@@ -161,7 +165,39 @@ public class CalendarFragment extends Fragment {
         mTitle = "今天";
     }
 
+    //添加监听日历相关事件
+    private void addListener(){
+        calendarView.setOnMonthChangeListener(new CalendarView.OnMonthChangeListener() {
+            @Override
+            public void onMonthChange(int year, int month) {
+                System.out.println("月份改变事件！年：" + year+"月："+month);
+//                List<Calendar> li= calendarView.getCurrentMonthCalendars();
+//                Map<String, Calendar> eventValue = new HashMap<String, Calendar>();
+//                eventValue.put("假",li.get(5));
+//                calendarView.addSchemeDate(eventValue);
+//                Calendar xx = calendarView.getSelectedCalendar();
+//                //xx.addScheme();
+//                xx.addScheme(0,"假期");
+//                calendarView.addSchemeDate(xx);
+
+//                for (int i = 0; i < li.size(); i++) {
+//                    System.out.println("输出获取到的 日" + li.get(i).getDay());
+//                    System.out.println("输出获取到的 月" + li.get(i).getMonth());
+//                }
+                //在日历中显示日程标记先判断切换到那年那月，然后获取该月的所有月份日期，然后在数据库中也获取该月的所有数据然后比对匹配的话给有日程的日期批量添加标记
+//                List<Calendar> li= calendarView.getCurrentMonthCalendars();
+//                Map<String, Calendar> eventValue = new HashMap<String, Calendar>();
+//                for (int i = 0; i < li.size(); i++) {
+//                    eventValue.put("假",li.get(i));
+//                }
+
+                // calendarView.setSchemeDate()
+            }
+        });
+    }
+
     private void onClick() {
+
         //监控日历点击事件
         calendarView.setOnCalendarSelectListener(new CalendarView.OnCalendarSelectListener() {
             @Override
@@ -183,7 +219,8 @@ public class CalendarFragment extends Fragment {
                 }
                 ((MainActivity) getActivity()).setDateText(
                         monthDay,
-                        DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay()));
+                        DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay()),
+                        DateFormatter.getTimeMillNew(calendar.getYear(), calendar.getMonth(), calendar.getDay()));
                 //查询日程
                 mTitle = monthDay;
                 mDateFormat = DateUtils.dateFormat(calendar.getYear(), calendar.getMonth(), calendar.getDay());
@@ -199,9 +236,9 @@ public class CalendarFragment extends Fragment {
             showDayEvent();
         });
 
-        //打开年份选择
+        //打开年份选择月份界面
         monthDayTv.setOnClickListener(view -> {
-            //calendarView.showYearSelectLayout(calendarView.getCurYear());
+            calendarView.showYearSelectLayout(calendarView.getCurYear());
         });
     }
 

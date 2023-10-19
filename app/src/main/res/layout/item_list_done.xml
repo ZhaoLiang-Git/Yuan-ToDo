@@ -16,16 +16,56 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
+    <RelativeLayout
+        android:id="@+id/time_Layout"
+        android:layout_width="@dimen/DIMEN_160PX"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        app:layout_constraintLeft_toRightOf="@id/stateCheckBox"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tv_start_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="8:30"
+            android:textColor="@color/schedule_menu_text"
+            android:textSize="@dimen/text_size_33" />
+
+        <TextView
+            android:id="@+id/tv_end_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/tv_start_item"
+            android:layout_marginTop="@dimen/DIMEN_10PX"
+            android:text="21:30"
+            android:textColor="@color/no_schedule_text_color"
+            android:textSize="@dimen/text_size_33" />
+
+        <TextView
+            android:id="@+id/tv_all_day"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/schedule_menu_text"
+            android:textSize="@dimen/text_size_33" />
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/titleTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_15"
         android:layout_marginEnd="@dimen/dp_30"
         android:maxLength="15"
         android:text="体育课"
         android:textColor="@color/black"
-        app:layout_constraintLeft_toRightOf="@id/stateCheckBox"
+        app:layout_constraintLeft_toRightOf="@id/time_Layout"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

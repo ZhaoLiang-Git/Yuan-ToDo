@@ -15,9 +15,7 @@ import java.util.List;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/12/24
- *     desc   : 任务的增删改查
+ *     desc: 任务的增删改查
  * </pre>
  */
 
@@ -35,6 +33,7 @@ public class TaskDao extends BaseDao {
         ResultSet rs = null;
         try {
             stmt = prepareStatement(conn, sql, params);
+            if (stmt == null)return res;
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Task task = new Task();
@@ -49,6 +48,16 @@ public class TaskDao extends BaseDao {
                 task.setDate(rs.getString("date"));
                 task.setPriority(rs.getInt("priority"));
                 task.setState(rs.getBoolean("state"));
+                task.setId(rs.getLong("id"));
+                task.setLocation(rs.getString("location"));
+                task.setRemark(rs.getString("remark"));
+                task.setEndTime(rs.getString("endTime"));
+                task.setRepeatMode(rs.getInt("repeatMode"));
+                task.setRepeatId(rs.getString("repeatId"));
+                task.setRemindId(rs.getInt("remindId"));
+                task.setAllDay(rs.getInt("allDay"));
+                task.setAlertTime(rs.getLong("alertTime"));
+                task.setEndTimeMill(rs.getLong("endTimeMill"));
                 res.add(task);
             }
         } catch (SQLException e) {
@@ -160,10 +169,11 @@ public class TaskDao extends BaseDao {
     public void insert(Task task, List<Integer> tagIds) {
         String sql =
                         "insert into " +
-                        "task_3117004905_袁健策(userId,cId,title,content,date,startTime,priority,state) " +
-                        "values(?,?,?,?,?,?,?,?)";
+                        "task_3117004905_袁健策(taskId,userId,cId,title,content,date,startTime,priority,state,id,location,remark,endTime,repeatMode,repeatId,remindId,allDay,alertTime,endTimeMill) " +
+                        "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         //插入任务记录并返回任务号
         int taskId = executeUpdateNeedReturnPK(sql, new Object[]{
+                        task.getTaskId(),
                         User.getInstance().getUserId(),
                         task.getcId(),
                         task.getTitle(),
@@ -172,8 +182,19 @@ public class TaskDao extends BaseDao {
                         task.getStartTime(),
                         task.getPriority(),
                         task.isState(),
+                        task.getId(),
+                        task.getLocation(),
+                        task.getRemark(),
+                        task.getEndTime(),
+                        task.getRepeatMode(),
+                        task.getRepeatId(),
+                        task.getRemindId(),
+                        task.getAllDay(),
+                        task.getAlertTime(),
+                        task.getEndTimeMill(),
                 }
         );
+        System.out.println("输出taskID！" +taskId);
         //插入到任务-标签表
         if(tagIds!=null&&tagIds.size()!=0) insertTaskSTag(taskId, tagIds);
     }
@@ -205,7 +226,7 @@ public class TaskDao extends BaseDao {
     public int update(Task task) {
         String sql =
                         "update task_3117004905_袁健策 " +
-                        "set [cId]=?,[title]=?,[content]=?,[date]=?,[startTime]=?,[priority]=?,[state]=? " +
+                        "set [cId]=?,[title]=?,[content]=?,[date]=?,[startTime]=?,[priority]=?,[state]=?,[location]=?,[remark]=?,[endTime]=?,[repeatMode]=?,[repeatId]=?,[remindId]=?,[allDay]=?,[alertTime]=?,[endTimeMill]=? " +
                         "where [taskId] = ?";
         return executeUpdate(sql, new Object[]{
                         task.getcId(),
@@ -215,6 +236,15 @@ public class TaskDao extends BaseDao {
                         task.getStartTime(),
                         task.getPriority(),
                         task.isState(),
+                        task.getLocation(),
+                        task.getRemark(),
+                        task.getEndTime(),
+                        task.getRepeatMode(),
+                        task.getRepeatId(),
+                        task.getRemindId(),
+                        task.getAllDay(),
+                        task.getAlertTime(),
+                        task.getEndTimeMill(),
                         task.getTaskId(),
                 }
         );

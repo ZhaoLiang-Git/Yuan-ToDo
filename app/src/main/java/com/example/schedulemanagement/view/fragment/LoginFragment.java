@@ -31,9 +31,7 @@ import okhttp3.Call;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/05/02
- *     desc   : 登录碎片
+ *     desc   : 登录
  * </pre>
  */
 
