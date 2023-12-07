@@ -92,14 +92,15 @@
                 android:textSize="12sp" />
         </FrameLayout>
     </RelativeLayout>
-
+<!--      app:default_status="expand"  默认日历展开-->
+<!--      app:default_status="shrink"  默认日历收缩-->
     <com.haibin.calendarview.CalendarLayout
         android:id="@+id/calendarLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="#fff"
-        app:default_status="shrink"
+        app:default_status="expand"
         app:calendar_content_view_id="@+id/recyclerView">
 
         <com.haibin.calendarview.CalendarView

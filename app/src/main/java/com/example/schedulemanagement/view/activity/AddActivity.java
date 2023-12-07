@@ -10,10 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
-//import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
@@ -46,8 +44,10 @@ import com.example.schedulemanagement.utils.CommonUtils;
 import com.example.schedulemanagement.utils.DateFormatter;
 import com.example.schedulemanagement.utils.DateUtils;
 import com.example.schedulemanagement.utils.MaxLengthWatcher;
+import com.example.schedulemanagement.utils.lunar.LunarCalendar;
 import com.example.schedulemanagement.view.activity.customreminder.ReminderActivity;
 import com.example.schedulemanagement.view.activity.customrepeat.RepeatActivity;
+import com.example.schedulemanagement.view.activity.lunarCalendarReminder.LunarCalendarReminderActivity;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import com.eebbk.common.utils.datatimewheel.DateChooseWheelViewDialog;
@@ -102,6 +102,8 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private TextView mTvReminder;
     private Switch mSwitchView;
     private RelativeLayout mAllDaySwitchLayout;
+    private Switch mNonliSwitchView;
+    private RelativeLayout mNonliSwitchLayout;
     private RelativeLayout rl_start;
     private RelativeLayout rl_end;
     private RelativeLayout rl_repeat;
@@ -144,6 +146,8 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
     private String mStartDate;
     //0全天关闭，1全天打开
     private int isAllDay = 0;
+    //0农历关闭，1农历打开
+    private int isNonli = 0;
     private CharSequence timeFormat = "yyyy年M月d日  HH:mm";
     private CharSequence allDayTimeFormat = "yyyy年M月d日";
     //当前编辑的是否结束日期
@@ -195,12 +199,12 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                     update();
                 }
                 break;
-            case R.id.menu_category:
-                selectCategory();
-                break;
-            case R.id.menu_tag:
-                selectTag();
-                break;
+//            case R.id.menu_category:
+//                selectCategory();
+//                break;
+//            case R.id.menu_tag:
+//                selectTag();
+//                break;
         }
         return true;
     }
@@ -221,7 +225,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
 
     //选择标签
     private void selectTag(){
-        new Thread(()->{
+        new Thread(()-> {
             //如果是一开始设置分类就得在数据库中获取分类的位置
             if(mTagIndexList == null) {
                 mOrignTagIdList = typeDao.queryTagByTaskId(mTaskId);
@@ -333,12 +337,15 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         mTvRepeat = (TextView) findViewById(R.id.tv_repeat);
         mTvReminder = (TextView) findViewById(R.id.tv_reminder);
         mSwitchView = (Switch) findViewById(R.id.tv_switch);
-        mAllDaySwitchLayout= (RelativeLayout) findViewById(R.id.rl_all_day_switch);
+        mAllDaySwitchLayout = (RelativeLayout) findViewById(R.id.rl_all_day_switch);
+        mNonliSwitchView = (Switch) findViewById(R.id.tv_nonli_switch);
+        mNonliSwitchLayout = (RelativeLayout) findViewById(R.id.rl_nonli_switch);
         rl_start = (RelativeLayout) findViewById(R.id.rl_start);
         rl_end = (RelativeLayout) findViewById(R.id.rl_end);
         rl_repeat = (RelativeLayout) findViewById(R.id.rl_repeat);
         rl_reminder = (RelativeLayout) findViewById(R.id.rl_reminder);
         mSwitchView.setClickable(false);
+        mNonliSwitchView.setClickable(false);
     }
 
     /**
@@ -393,6 +400,15 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             setAllDayOpen(!mSwitchView.isChecked());
             mSwitchView.setChecked(!mSwitchView.isChecked());
         });
+
+        mNonliSwitchLayout.setOnClickListener(view -> {
+            //是否打开农历
+            mRepeatMode = 0;
+            mRepeatId  = "0";
+            mTvRepeat.setText("永不");
+            setNonliOpen(!mNonliSwitchView.isChecked());
+            mNonliSwitchView.setChecked(!mNonliSwitchView.isChecked());
+        });
         rl_start.setOnClickListener(view -> {
             if (isDatePickerDialogShowing()) {
                 return;
@@ -413,7 +429,11 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
            // InputManagerUtil.closeSoftInput(AddScheduleActivity.this);
         });
         rl_repeat.setOnClickListener(view->{
-            scheduleRepeat();
+            if (1 == isNonli) {
+                scheduleLunarCalendarRemindEdit();
+            } else {
+                scheduleRepeat();
+            }
         });
 
         rl_reminder.setOnClickListener(view->{
@@ -451,9 +471,11 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             int year = selectCalendar.get(Calendar.YEAR);
             int month = selectCalendar.get(Calendar.MONTH);
             int day = selectCalendar.get(Calendar.DAY_OF_MONTH);
-
+//            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//            int minute = calendar.get(Calendar.MINUTE);
+            //,hour ,minute
             mTimePickCalendar = Calendar.getInstance();
-            mTimePickCalendar.set(year, month, day);
+            mTimePickCalendar.set(year, month, day );
             mStartDate = (String) DateFormat.format("yyyy年MM月dd日", mTimePickCalendar);
             mAlertTime = mTimePickCalendar.getTimeInMillis();
             mTvStart.setText(DateFormat.format(timeFormat, mTimePickCalendar));
@@ -519,14 +541,20 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                     task.setAlertTime(mAlertTime);
                     task.setEndTimeMill(mEndTimeMill);
                 }
-                task.setRepeatId(str);
+                if (1==isNonli){
+                    task.setRepeatId(mRepeatId);
+                }
+                else {
+                    task.setRepeatId(str);
+                }
                 task.setRepeatMode(mRepeatMode);
                 task.setRemindId(mReminderId);
                 task.setLocation(mEtLocation.getText().toString());
                 task.setAllDay(isAllDay);
+                task.setNonLi(isNonli);
                // task.setTitle(mEtTitle.getText().toString());
                 task.setRemark(mEtRemark.getText().toString());
-                task.setStartTime(mTvStart.getText().toString());//暂时注释
+                task.setStartTime(mTvStart.getText().toString());
                 task.setEndTime(mTvEnd.getText().toString());
 
                 //开始的时间
@@ -537,7 +565,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                 //task.setId(String.valueOf(System.currentTimeMillis()));
                 // Long.parseLong(String.valueOf((int)Math.random()*999+1));
                 //设置系统系统日历ID
-                task.setId(System.currentTimeMillis());
+                task.setId(task.getTaskId());
                 taskDao.insert(task,mTagIdList);
 
                 //给日历软件增加一个日程
@@ -591,14 +619,20 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                     task.setAlertTime(mAlertTime);
                     task.setEndTimeMill(mEndTimeMill);
                 }
-                task.setRepeatId(str);
+                if (1==isNonli){
+                    task.setRepeatId(mRepeatId);
+                }
+                else {
+                    task.setRepeatId(str);
+                }
                 task.setRepeatMode(mRepeatMode);
                 task.setRemindId(mReminderId);
                 task.setLocation(mEtLocation.getText().toString());
                 task.setAllDay(isAllDay);
+                task.setNonLi(isNonli);
                 //task.setTitle(mEtTitle.getText().toString());
                 task.setRemark(mEtRemark.getText().toString());
-                task.setStartTime(mTvStart.getText().toString());//暂时注释
+                task.setStartTime(mTvStart.getText().toString());
                 task.setEndTime(mTvEnd.getText().toString());
 
                 //开始的时间
@@ -607,7 +641,7 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                 mStartDate = (String) DateFormat.format("yyyy年MM月dd日", calendar);
                 /////////////////////task.setDate(mStartDate);//暂时注释
                 //task.setId(String.valueOf(System.currentTimeMillis()));//更新的时候不更新系统日程的事件ID
-
+                task.setId(task.getTaskId());
                 taskDao.updateTaskAndTag(task,mOrignTagIdList,mTagIdList);
                 updataCalender(task);
                 showAddSuccess();
@@ -626,28 +660,41 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                 task.getAlertTime(),
                 task.getEndTimeMill(),
                 CalendarUtils.remindidTimeConvert(task.getRemindId()),
-                CalendarUtils.repeatRrule(task.getAlertTime(), task.getEndTimeMill(),task.getAllDay(),task.getRepeatMode(),task.getRepeatId())
+                CalendarUtils.repeatRrule(task.getAlertTime(), task.getEndTimeMill(),task.getAllDay(),task.getRepeatMode(),task.getRepeatId(),task.getNonLi())
         );
+
+//                // 公历转农历：
+//                Calendar today = Calendar.getInstance();
+//                LunarCalendar lunar = LunarCalendar.solar2Lunar(today);
+//                System.out.println(today.getTime() + " <====> " + lunar.getFullLunarName());
+//
+//                // 农历转公历：
+//                LunarCalendar lunar1 = new LunarCalendar();
+//                Calendar today1 = LunarCalendar.lunar2Solar(lunar.getLunarYear(), lunar.getLunarMonth(), lunar.getDayOfLunarMonth(),
+//                        lunar.isLeapMonth());
+//                System.out.println(lunar1.getFullLunarName() + " <====> " + today1.getTime());
 
         // 添加系统日历事件
         int addResult = CalendarProviderManager.addCalendarEvent(AddActivity.this, calendarEvent);
         if (addResult == 0) {
-            showToast("插入成功");
+            System.out.println("插入成功");
         } else if (addResult == -1) {
-            showToast("插入失败");
+            System.out.println("插入失败");
         } else if (addResult == -2) {
-            showToast("没有权限");
+            System.out.println("没有权限");
         }
     }
+
     // 更新系统日历事件
     private void updataCalender(Task task){
-       boolean isx = CalendarProviderManager.isEventAlreadyExist(AddActivity.this,task.getAlertTime(),task.getEndTimeMill(),task.getTitle());
-       if (isx){
-           System.out.println("在系统日历找到该事件了");
-       }
-       else {
-           System.out.println("在系统日历没找到该事件了@@@@@@");
-       }
+//       boolean isx = CalendarProviderManager.isEventAlreadyExist(AddActivity.this,task.getAlertTime(),task.getEndTimeMill(),task.getTitle());
+//       if (isx){
+//           System.out.println("在系统日历找到该事件了");
+//       }
+//       else {
+//           System.out.println("在系统日历没找到该事件");
+//       }
+
         CalendarEvent calendarEvent = new CalendarEvent(
                 task.getId(),
                 task.getTitle(),
@@ -656,17 +703,17 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                 task.getAlertTime(),
                 task.getEndTimeMill(),
                 CalendarUtils.remindidTimeConvert(task.getRemindId()),
-                CalendarUtils.repeatRrule(task.getAlertTime(), task.getEndTimeMill(),task.getAllDay(),task.getRepeatMode(),task.getRepeatId())
+                CalendarUtils.repeatRrule(task.getAlertTime(), task.getEndTimeMill(),task.getAllDay(),task.getRepeatMode(),task.getRepeatId(),task.getNonLi())
         );
 
-        // 添加事件
+        // 更新系统事件
         int addResult = CalendarProviderManager.updateCalendarEvent(AddActivity.this,task.getId(), calendarEvent);
         if (addResult == 0) {
-            showToast("更新成功");
+            System.out.println("更新成功");
         } else if (addResult == -1) {
-            showToast("更新失败");
+            System.out.println("更新失败");
         } else if (addResult == -2) {
-            showToast("没有权限");
+            System.out.println("没有权限");
         }
     }
 
@@ -744,13 +791,12 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             priorityIv.setImageDrawable(getDrawable(priorityPic[task.getPriority()]));
             titleTv.setText(task.getTitle());
             descriptionEdit.setText(task.getContent());
-
-
             ////////////////////////////////////
 
 //            String mScheduleTitle = task.getTitle() + "";
             String mScheduleLocatoin = task.getLocation() + "";
             isAllDay = task.getAllDay();
+            isNonli = task.getNonLi();
             String mStartTime = task.getStartTime() + "";
             String mEndTime = task.getEndTime() + "";
             mReminderId = task.getRemindId();
@@ -778,9 +824,28 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             } else {
                 mSwitchView.setChecked(false);
             }
+            if (1 == isNonli) {
+                mNonliSwitchView.setChecked(true);
+            } else {
+                mNonliSwitchView.setChecked(false);
+            }
             mTvStart.setText(getStartTimeStr(task));
             mTvEnd.setText(getEndTimeStr(task));
-            mTvRepeat.setText(getRepeatStr() + "");
+
+            if (1 == isNonli) {
+                int repeatId = 0;
+                try {
+                    repeatId = Integer.parseInt(task.getRepeatId());
+                }
+
+                catch (NumberFormatException e) {
+                    repeatId = 0;
+                }
+                mTvRepeat.setText(ConstData.NONLIREPEATSTR[repeatId] + "");
+
+            } else {
+                mTvRepeat.setText(getRepeatStr() + "");
+            }
             mTvReminder.setText(ConstData.REMINDERSTR[task.getRemindId()] + "");
             mEtRemark.setText(mRemark);
         });
@@ -799,14 +864,13 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
 
         for (int i = 0;i<1;i++){
             num = (int)(random.nextDouble()*(100000 - 10000) + 10000);
-            //if(!(
-            // num+"").contains("4")) break ;
+            //if(!( num+"").contains("4")) break ;
 
         }
         Log.i("Gyyx", "输出随机数"+num+"");
         return num;
     }
-//////////////////////////////////////////////////////////////////////新增选择时间的逻辑///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////新增的逻辑///////////////////////////////////////////////////////////////////////////////
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // super.onActivityResult(requestCode, resultCode, data);
@@ -846,6 +910,12 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
                 mReminderId = bReminder.getInt("reminder");//str即为回传的值
                 mTvReminder.setText(ConstData.REMINDERSTR[mReminderId]);
                 break;
+            case ConstData.lunarCalendarreminderCode:
+                mRepeatMode = 0;
+                Bundle cReminder = data.getExtras(); //data为B中回传的Intent
+                mRepeatId  = cReminder.getInt("repeat")+"";//str即为回传的值
+                mTvRepeat.setText(ConstData.NONLIREPEATSTR[cReminder.getInt("repeat")]);
+                break;
         }
     }
 
@@ -853,12 +923,21 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         String startTime;
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(task.getAlertTime());
-        if (1 == isAllDay){
+        if (1 == isAllDay&&0 == isNonli){
+            //打开全天关闭农历
             startTime = DateFormat.format(allDayTimeFormat, calendar) + "  " + DateFormatter.getWeekDay(calendar);
-        } else {
+        }
+        else if (1 == isAllDay&&1 == isNonli) {
+            //打开全天打开农历
+            startTime = DateFormatter.getLunarFormatDay(calendar,isAllDay);
+        }
+        else if (0 == isAllDay&&1 == isNonli) {
+            //关闭全天打开农历
+            startTime = DateFormatter.getLunarFormatDay(calendar,isAllDay);
+        }
+        else {
             startTime = DateFormat.format(timeFormat, calendar) + "";
         }
-
         return startTime;
     }
 
@@ -866,12 +945,21 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         String endTime;
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(task.getEndTimeMill());
-        if (1 == isAllDay){
+        if (1 == isAllDay&&0 == isNonli){
+            //打开全天关闭农历
             endTime = DateFormat.format(allDayTimeFormat, calendar) + "  " + DateFormatter.getWeekDay(calendar);
-        } else {
+        }
+        else if (1 == isAllDay&&1 == isNonli) {
+            //打开全天打开农历
+            endTime = DateFormatter.getLunarFormatDay(calendar,isAllDay);
+        }
+        else if (0 == isAllDay&&1 == isNonli) {
+            //关闭全天打开农历
+            endTime = DateFormatter.getLunarFormatDay(calendar,isAllDay);
+        }
+        else {
             endTime = DateFormat.format(timeFormat, calendar) + "";
         }
-
         return endTime;
     }
 
@@ -965,9 +1053,16 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
      * 设置时间选择器标题的时间
      * */
     private void setDatePickerTitle(Calendar calendar) {
-        if (1 == isAllDay){
+        if (1 == isAllDay&&0 == isNonli){
             mDatePickerAlertDialog.setTitle(str + "   " + DateFormat.format("yyyy/M/d", calendar));
-        } else {
+        }
+        else if (1 == isAllDay&&1 == isNonli) {
+            mDatePickerAlertDialog.setTitle(str + "   " + DateFormatter.getLunarFormatDay(calendar,isAllDay));
+        }
+        else if (0 == isAllDay&&1 == isNonli) {
+            mDatePickerAlertDialog.setTitle(str + "   " + DateFormatter.getLunarFormatDay(calendar,isAllDay));
+        }
+        else {
             mDatePickerAlertDialog.setTitle(str + "   " + DateFormat.format("yyyy/M/d  HH:mm", calendar));
         }
     }
@@ -1058,14 +1153,51 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             //开始日期
             Calendar startCalendar = getAllDayStartTime();
             mAllDayStartTime = startCalendar.getTimeInMillis();
-            mTvStart.setText(DateFormat.format(allDayTimeFormat, startCalendar) + "  " + DateFormatter.getWeekDay(startCalendar));
 
             //结束日期
             Calendar endCalendar = getAllDayEndTime();
             mAllDayEndTime = endCalendar.getTimeInMillis();
-            mTvEnd.setText(DateFormat.format(allDayTimeFormat, endCalendar) + "  " + DateFormatter.getWeekDay(endCalendar));
+            setTimeState();
         } else {
             isAllDay = 0;
+            setTimeState();
+        }
+    }
+
+    /**
+     * 是否打开农历
+     * @param isChecked switch开关状态
+     * */
+    private void setNonliOpen(boolean isChecked) {
+        if (isChecked) {
+            isNonli = 1;
+            setTimeState();
+        } else {
+            isNonli = 0;
+            setTimeState();
+        }
+    }
+    /**
+     * 设置农历和全天打开关闭时的时间显示
+     * */
+    private void setTimeState(){
+        if (1 == isAllDay&&0 == isNonli){
+            //打开全天关闭农历
+            mTvStart.setText(DateFormat.format(allDayTimeFormat, mAllDayStartTime) + "  " + DateFormatter.getWeekDay(mAllDayStartTime));
+            mTvEnd.setText(DateFormat.format(allDayTimeFormat, mAllDayEndTime) + "  " + DateFormatter.getWeekDay(mAllDayEndTime));
+        }
+        else if (1 == isAllDay&&1 == isNonli) {
+            //打开全天打开农历
+            mTvStart.setText(DateFormatter.getLunarFormatDay(mAllDayStartTime,isAllDay));
+            mTvEnd.setText(DateFormatter.getLunarFormatDay(mAllDayStartTime,isAllDay));
+        }
+        else if (0 == isAllDay&&1 == isNonli) {
+            //关闭全天打开农历
+            mTvStart.setText(DateFormatter.getLunarFormatDay(mAlertTime,isAllDay));
+            mTvEnd.setText(DateFormatter.getLunarFormatDay(mEndTimeMill,isAllDay));
+        }
+        else {
+            //关闭全天关闭农历
             Calendar startCalendar = Calendar.getInstance();
             startCalendar.setTimeInMillis(mAlertTime);
             mTvStart.setText(DateFormat.format(timeFormat, startCalendar));
@@ -1093,6 +1225,20 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
         startActivityForResult(inReminder, ConstData.reminderCode);
     }
 
+    private void scheduleLunarCalendarRemindEdit() {
+        Intent inReminder = new Intent();
+        int repeatId = 0;
+        try {
+            repeatId = Integer.parseInt(mRepeatId);
+        }
+
+        catch (NumberFormatException e) {
+            repeatId = 0;
+        }
+        inReminder.putExtra(ConstData.INTENT_SCEDULE_LUNAR_CALENDAR_REMIND_EDIT_KEY, repeatId);
+        inReminder.setClass(this, LunarCalendarReminderActivity.class);
+        startActivityForResult(inReminder, ConstData.lunarCalendarreminderCode);
+    }
     private void scheduleRepeat() {
         Intent rlRepeat = new Intent();
         Bundle bundle = new Bundle();
@@ -1161,5 +1307,4 @@ public class AddActivity extends AppCompatActivity implements TimePickerDialog.O
             mDateChooseWheelViewDialog = null;
         }
     }
-    //////////////////////////////////////////////////////////////////////End/////////////////////////////////////////////////////////////////////////////////////
 }

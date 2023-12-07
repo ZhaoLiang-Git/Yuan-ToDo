@@ -62,9 +62,11 @@ public class ConstData {
     public static final String[] REMINDERSTR = {"无","日程发生时","5分钟前","15分钟前","30分钟前","1小时前","2小时前","1天前","2天前"};
     public static final String[] REPEATSTR = {"永不","每天","每周","每月","每年","自定"};
     public static final String[] CUSTOMREPEATSTR = {"周日","周一","周二","周三","周四","周五","周六"};
+    public static final String[] NONLIREPEATSTR = {"永不","农历每年"};
     public static final String[] ALLREPEATSTR = {"永不","每天","每周","每月","每年","周日","周一","周二","周三","周四","周五","周六"};
 
     public static final int repeatCode = 0x2;
+    public static final int lunarCalendarreminderCode = 0x3;
     public static final int reminderCode = 0x4;
     public static final String[] LUNAR_MONTH = {"正月初","二月初","三月初","四月初","五月初","六月初","七月初","八月初","九月初","十月初","十一月初","腊月初"};
     public static final String[] LUNAR_DAY = {"一","二","三","四","五","六","七","八","九","十","十一","十二",
@@ -96,6 +98,8 @@ public class ConstData {
     public static final String INTENT_SCHEDULE_EDIT_KEY = "schedule_edit_key";
     public static final String INTENT_SCHEDULE_REPEAT_EDIT_KEY = "schedule_repeat_edit_key";
     public static final String INTENT_SCEDULE_REMIND_EDIT_KEY = "schedule_remind_edit_key";
+    public static final String INTENT_SCEDULE_LUNAR_CALENDAR_REMIND_EDIT_KEY = "schedule_lunar_calendar_remind_edit_key";
+
     public static final String INTENT_SCHEDULE_SELECT_DATE_KEY = "schedule_select_date_key";
     public static final String INTENT_SCHEDULE_REPEAT_IS_CUSTOM_REPEAT = "schedule_repeat_is_custom_repeat";
     public static final String INTENT_SCHEDULE_REPEAT_FREE_SET_ITEM = "schedule_repeat_free_set_item";

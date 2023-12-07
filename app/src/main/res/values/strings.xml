@@ -47,6 +47,7 @@
     <string name="accessibility_repeats" msgid="1629279916830919582">"重复"</string>
     <string name="accessibility_pick_end_date" msgid="5624250196618643922">"结束"</string>
     <string name="edit_event_all_day_label" msgid="6200181113992136073">"全天"</string>
+    <string name="edit_event_nonli_label" msgid="6200181113992136074">"农历提醒"</string>
     <string name="hint_what" msgid="709155115005044531">"标题"</string>
     <string name="hint_where" msgid="4972598001033801974">"地点"</string>
     <string name="input_maxlength">已经超过最大字符限制</string>

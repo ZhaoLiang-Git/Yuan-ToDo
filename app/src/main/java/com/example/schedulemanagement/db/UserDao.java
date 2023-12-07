@@ -1,6 +1,9 @@
 package com.example.schedulemanagement.db;
 
 import com.example.schedulemanagement.entity.User;
+import com.example.schedulemanagement.utils.MySharedPreferences;
+import com.example.schedulemanagement.view.activity.LoginActivity;
+import com.example.schedulemanagement.view.activity.MainActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +34,7 @@ public class UserDao extends BaseDao{
                 String s1 = rs.getString("username");
                 String s2 = rs.getString("password");
                 if(username.equals(s1) && password.equals(s2)){
-                    User.getInstance().setUserId(rs.getInt("userId"));
+                    User.getInstance().setUserId(rs.getLong("userId"));
                     return true;
                 }
             }
@@ -54,8 +57,12 @@ public class UserDao extends BaseDao{
             rs = stmt.executeQuery();
             if(rs.next()) return  "用户名已存在";
             //插入数据
-            String sql = "insert into user_3117004905_袁健策(username,password) values(?,?)";
-            if(executeUpdate(sql,new Object[]{username,password})!=0) return "showSuccess";
+            long userid = System.currentTimeMillis();//通过当前时间戳生成long类型的id
+            LoginActivity.sharedPreferencesUtil.saveData(MySharedPreferences.Contants.USERNAME, username);
+            LoginActivity.sharedPreferencesUtil.saveData(MySharedPreferences.Contants.PASSWORD, password);
+            LoginActivity.sharedPreferencesUtil.saveData(MySharedPreferences.Contants.USERID, userid);
+            String sql = "insert into user_3117004905_袁健策(username,password,userId) values(?,?,?)";
+            if(executeUpdate(sql,new Object[]{username,password,userid})!=0) return "showSuccess";
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {

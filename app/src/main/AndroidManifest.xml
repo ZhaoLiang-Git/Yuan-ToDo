@@ -37,6 +37,9 @@
         <activity
             android:name="com.example.schedulemanagement.view.activity.customreminder.ReminderActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.schedulemanagement.view.activity.lunarCalendarReminder.LunarCalendarReminderActivity"
+            android:screenOrientation="portrait" />
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />

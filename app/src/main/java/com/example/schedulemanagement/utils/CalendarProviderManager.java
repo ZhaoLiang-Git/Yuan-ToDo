@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.CalendarContract;
+import android.util.Log;
 
 
 import java.text.SimpleDateFormat;
@@ -309,7 +310,6 @@ public class CalendarProviderManager {
 
         Uri uri1 = CalendarContract.Events.CONTENT_URI;
         Uri uri2 = CalendarContract.Reminders.CONTENT_URI;
-
         ContentValues event = new ContentValues();
         setupEvent(newCalendarEvent, event,true);
 
@@ -320,8 +320,9 @@ public class CalendarProviderManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(
                     "android.permission.WRITE_CALENDAR")) {
-                //Uri Uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventID); //先注释明天测试
+                //Uri Uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventID); //向 URI 追加的 ID 的查询方法
                 updatedCount1 = context.getContentResolver().update(uri1, event, selection1, selectionArgs1);
+                Log.i("GYYX", "Rows updated: " + updatedCount1);
             } else {
                 return -2;
             }

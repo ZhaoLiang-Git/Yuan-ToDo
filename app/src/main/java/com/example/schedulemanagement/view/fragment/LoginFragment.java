@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.example.schedulemanagement.callback.LoginAndRegisterCallback;
 import com.example.schedulemanagement.db.UserDao;
 import com.example.schedulemanagement.entity.LoginAndRegister;
 import com.example.schedulemanagement.utils.CommonUtils;
+import com.example.schedulemanagement.utils.MySharedPreferences;
 import com.example.schedulemanagement.view.activity.LoginActivity;
 import com.example.schedulemanagement.view.activity.MainActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -28,6 +30,7 @@ import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
+
 
 /**
  * <pre>
@@ -67,6 +70,14 @@ public class LoginFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        String username = (String) LoginActivity.sharedPreferencesUtil.getData(MySharedPreferences.Contants.USERNAME, "");
+        String password = (String) LoginActivity.sharedPreferencesUtil.getData(MySharedPreferences.Contants.PASSWORD, "");
+
+        if (!username.equals("")&&!password.equals("")) {
+            usernameEdit.setText(username);
+            passwordEdit.setText(password);
+        }
         loginBtn.setOnRippleCompleteListener(rippleView ->
           login(usernameEdit.getText().toString(), passwordEdit.getText().toString()));
 //                startActivityByAdd(new Intent(getActivity(), MainActivity.class)));

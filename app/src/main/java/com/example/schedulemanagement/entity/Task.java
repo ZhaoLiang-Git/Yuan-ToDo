@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 /**
  * <pre>
- *     author : 残渊
- *     time   : 2019/12/24
  *     desc   : 任务实体类
  * </pre>
  */
@@ -20,7 +18,7 @@ public class Task implements Serializable {
     //时间类别号
     private int timeId;
     //用户id
-    private int userId;
+    private long userId;
     //标题
     private String title;
     //内容
@@ -52,6 +50,8 @@ public class Task implements Serializable {
     private int remindId;
     //是否全天模式 0:false;1:true
     private int allDay;
+    //是否农历模式 0:false;1:true
+    private int nonLi;
     //开始的日期，年月日，已经格式化了
    // private String date;
     //日程提醒时间，long类型
@@ -67,11 +67,11 @@ public class Task implements Serializable {
      */
     private boolean isBehind;
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
@@ -217,6 +217,14 @@ public class Task implements Serializable {
 
     public void setAllDay(int allDay) {
         this.allDay = allDay;
+    }
+
+    public int getNonLi() {
+        return nonLi;
+    }
+
+    public void setNonLi(int nonLi) {
+        this.nonLi = nonLi;
     }
 
     public long getAlertTime() {

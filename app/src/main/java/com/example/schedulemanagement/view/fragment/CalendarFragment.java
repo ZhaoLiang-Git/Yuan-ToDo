@@ -191,10 +191,29 @@ public class CalendarFragment extends Fragment {
 //                    eventValue.put("假",li.get(i));
 //                }
 
-                // calendarView.setSchemeDate()
+//                Map<String, Calendar> map=new HashMap<>();
+//                map.put(getSchemeCalendar(year, month, 23, 0xFF40db25, "20").toString(),
+//                        getSchemeCalendar(year, month, 23, 0xFF40db25, "20"));
+//                map.put(getSchemeCalendar(year, month, 24, 0xFF40db25, "事").toString(),
+//                        getSchemeCalendar(year, month, 24, 0xFF40db25, "事"));
+//                calendarView.setSchemeDate(map);
             }
         });
     }
+
+    private Calendar getSchemeCalendar(int year, int month, int day, int color, String text) {
+        Calendar calendar = new Calendar();
+        calendar.setYear(year);
+        calendar.setMonth(month);
+        calendar.setDay(day);
+        calendar.setSchemeColor(color);//如果单独标记颜色、则会使用这个颜色
+        calendar.setScheme(text);
+        calendar.addScheme(new Calendar.Scheme());
+        calendar.addScheme(0xFF008800, "假");
+        calendar.addScheme(0xFF008800, "节");
+        return calendar;
+    }
+
 
     private void onClick() {
 

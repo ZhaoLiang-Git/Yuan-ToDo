@@ -220,6 +220,36 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/rl_nonli_switch"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/DIMEN_143PX"
+                android:paddingLeft="@dimen/DIMEN_53PX"
+                android:paddingRight="@dimen/DIMEN_54PX"
+                android:layout_marginTop="@dimen/DIMEN_39PX"
+                android:background="@drawable/item_selector_color">
+
+                <View style="@style/Title_bar_below_ViewSeparator" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/edit_event_nonli_label"
+                    android:textColor="@color/schedule_menu_text"
+                    android:textSize="@dimen/text_size_45" />
+
+                <Switch
+                    android:id="@+id/tv_nonli_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/DIMEN_69PX"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true" />
+
+
+            </RelativeLayout>
+
             <View
                 style="@style/Title_bar_below_ViewSeparator"
                 android:layout_marginLeft="@dimen/DIMEN_53PX"

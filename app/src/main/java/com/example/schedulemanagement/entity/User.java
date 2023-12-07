@@ -10,7 +10,7 @@ package com.example.schedulemanagement.entity;
 
 public class User {
     private static User sInstance = null;
-    private int userId;
+    private long userId;
     private User(){}
     public static User getInstance(){
         if(sInstance == null){
@@ -22,11 +22,11 @@ public class User {
         }
         return sInstance;
     }
-    public void setUserId(int userId){
+    public void setUserId(long userId){
         this.userId = userId;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 }

@@ -226,6 +226,48 @@ public class DateFormatter {
 		}
 	}
 
+	/**
+	 * 传入long类型时间，返回一个格式化之后的时间 如：2021年 五月初五 12:00
+	 * @param time 时间
+	 * @param isAllDay 是否打开全天
+	 * */
+	public static String getLunarFormatDay(long time,int isAllDay){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(time);
+		int year = calendar.get(Calendar.YEAR);//年
+		int month = calendar.get(Calendar.MONTH);//月
+		int day = calendar.get(Calendar.DAY_OF_MONTH);//日
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);//时
+		int minute = calendar.get(Calendar.MINUTE);//分
+		String data = "";
+		// isAllDay 0全天关闭，1全天打开
+		if (isAllDay == 1){
+			data = year+"年 "+ getLunarDay(time);
+		}
+		else {
+			data = year+"年 "+ getLunarDay(time) +" "+DateUtils.formatTime(hour)+":"+DateUtils.formatTime(minute);
+		}
+		return data;
+	}
+
+	public static String getLunarFormatDay(Calendar date,int isAllDay){
+		if(date == null) return "";
+		int year = date.get(Calendar.YEAR);//年
+		int month = date.get(Calendar.MONTH);//月
+		int day = date.get(Calendar.DAY_OF_MONTH);//日
+		int hour = date.get(Calendar.HOUR_OF_DAY);//时
+		int minute = date.get(Calendar.MINUTE);//分
+		String data = "";
+		// isAllDay 0全天关闭，1全天打开
+		if (isAllDay == 1){
+			data = year+"年 "+ getLunarDay(date.getTimeInMillis());
+		}
+		else {
+			data = year+"年 "+ getLunarDay(date.getTimeInMillis()) +" "+DateUtils.formatTime(hour)+":"+DateUtils.formatTime(minute);
+		}
+		return data;
+	}
+
 	public static String getDialogScheduleAlertTime(long timeMill) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(timeMill);

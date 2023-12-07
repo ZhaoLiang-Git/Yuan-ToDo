@@ -33,7 +33,6 @@ public class TaskDao extends BaseDao {
         ResultSet rs = null;
         try {
             stmt = prepareStatement(conn, sql, params);
-            if (stmt == null)return res;
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Task task = new Task();
@@ -42,7 +41,7 @@ public class TaskDao extends BaseDao {
                 task.setpId(rs.getInt("pId"));
                 task.setTimeId(rs.getInt("timeId"));
                 task.setStartTime(rs.getString("startTime"));
-                task.setUserId(rs.getInt("userId"));
+                task.setUserId(rs.getLong("userId"));
                 task.setTitle(rs.getString("title"));
                 task.setContent(rs.getString("content"));
                 task.setDate(rs.getString("date"));
@@ -58,6 +57,7 @@ public class TaskDao extends BaseDao {
                 task.setAllDay(rs.getInt("allDay"));
                 task.setAlertTime(rs.getLong("alertTime"));
                 task.setEndTimeMill(rs.getLong("endTimeMill"));
+                task.setNonLi(rs.getInt("nonLi"));
                 res.add(task);
             }
         } catch (SQLException e) {
@@ -169,8 +169,8 @@ public class TaskDao extends BaseDao {
     public void insert(Task task, List<Integer> tagIds) {
         String sql =
                         "insert into " +
-                        "task_3117004905_袁健策(taskId,userId,cId,title,content,date,startTime,priority,state,id,location,remark,endTime,repeatMode,repeatId,remindId,allDay,alertTime,endTimeMill) " +
-                        "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                        "task_3117004905_袁健策(taskId,userId,cId,title,content,date,startTime,priority,state,id,location,remark,endTime,repeatMode,repeatId,remindId,allDay,alertTime,endTimeMill,nonLi) " +
+                        "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         //插入任务记录并返回任务号
         int taskId = executeUpdateNeedReturnPK(sql, new Object[]{
                         task.getTaskId(),
@@ -192,6 +192,7 @@ public class TaskDao extends BaseDao {
                         task.getAllDay(),
                         task.getAlertTime(),
                         task.getEndTimeMill(),
+                        task.getNonLi(),
                 }
         );
         System.out.println("输出taskID！" +taskId);
@@ -226,7 +227,7 @@ public class TaskDao extends BaseDao {
     public int update(Task task) {
         String sql =
                         "update task_3117004905_袁健策 " +
-                        "set [cId]=?,[title]=?,[content]=?,[date]=?,[startTime]=?,[priority]=?,[state]=?,[location]=?,[remark]=?,[endTime]=?,[repeatMode]=?,[repeatId]=?,[remindId]=?,[allDay]=?,[alertTime]=?,[endTimeMill]=? " +
+                        "set [cId]=?,[title]=?,[content]=?,[date]=?,[startTime]=?,[priority]=?,[state]=?,[location]=?,[remark]=?,[endTime]=?,[repeatMode]=?,[repeatId]=?,[remindId]=?,[allDay]=?,[alertTime]=?,[endTimeMill]=?,[nonLi]=? " +
                         "where [taskId] = ?";
         return executeUpdate(sql, new Object[]{
                         task.getcId(),
@@ -245,7 +246,9 @@ public class TaskDao extends BaseDao {
                         task.getAllDay(),
                         task.getAlertTime(),
                         task.getEndTimeMill(),
+                        task.getNonLi(),
                         task.getTaskId(),
+
                 }
         );
     }
